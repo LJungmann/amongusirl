@@ -1,0 +1,28 @@
+{
+	"name": "vite-template-solid",
+	"version": "0.0.0",
+	"description": "",
+	"type": "module",
+	"scripts": {
+		"start": "vite",
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite preview",
+		"test": "vitest --watch",
+		"generate-assets": "pwa-assets-generator --preset minimal-2023 public/Logo.svg"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^5.7.2",
+		"vite": "^6.0.0",
+		"vite-plugin-pwa": "^1.0.0",
+		"vite-plugin-solid": "^2.11.6",
+		"@vite-pwa/assets-generator": "^1.0.0",
+		"workbox-window": "^7.3.0"
+	},
+	"dependencies": {
+		"@tailwindcss/vite": "^4.1.4",
+		"solid-js": "^1.9.5",
+		"tailwindcss": "^4.1.4"
+	}
+}
