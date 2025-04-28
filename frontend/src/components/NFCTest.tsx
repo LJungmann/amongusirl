@@ -51,7 +51,8 @@ const NFCTest = () => {
 							);
 						});
 
-						ndef.addEventListener("reading", ({ message, serialNumber }) => {
+						ndef.addEventListener("reading", (event) => {
+							const { message, serialNumber } = event as NDEFReadingEvent;
 							log("readLog", `> Serial Number: ${serialNumber}`);
 							log("readLog", `> Records: (${message.records.length})`);
 
