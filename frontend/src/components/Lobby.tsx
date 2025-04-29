@@ -1,5 +1,5 @@
 import { createSignal, Match, Switch } from "solid-js";
-import { setGameState } from "../App";
+import { gameStateData, playerData, setGameState, setPlayerData } from "../App";
 
 const Lobby = () => {
 	type State =
@@ -10,8 +10,6 @@ const Lobby = () => {
 		| "registered"
 		| "start-game";
 	const [state, setState] = createSignal<State>("lobby");
-	let playerJoinCount = 0;
-	let playerId = Math.floor(Math.random() * 100);
 	return (
 		<div class='flex flex-col items-center justify-center h-screen bg-gray-100 gap-4'>
 			<Switch>
@@ -26,7 +24,30 @@ const Lobby = () => {
 						class='bg-red-500 px-8 py-4 rounded-2xl text-white font-bold'
 						onClick={async () => {
 							if ("NDEFReader" in window) {
-								setState("registering");
+								if (gameStateData().currentGameId.length < 8) {
+									const data = await fetch(
+										"https://among-us-irl.mcdle.net/open",
+										{
+											method: "POST",
+											headers: {
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify({
+												playerId: 0,
+											}),
+										}
+									);
+									const json = (await data.json()) as {
+										playerId: number;
+										gameId: string;
+									};
+									setState("sync-chip");
+									setPlayerData({
+										playerId: 0,
+									});
+								} else {
+									setState("registering");
+								}
 								try {
 									const ndef = new NDEFReader();
 									await ndef.scan();
@@ -38,7 +59,7 @@ const Lobby = () => {
 										);
 									});
 
-									ndef.addEventListener("reading", (event) => {
+									ndef.addEventListener("reading", async (event) => {
 										const { message, serialNumber } = event as NDEFReadingEvent;
 
 										const decoder = new TextDecoder();
@@ -57,8 +78,12 @@ const Lobby = () => {
 															.decode(record.data)
 															.includes("player_id: ")
 													) {
-														ndef.write("player_id: " + playerId);
-														setState("start-game"); // TODO: set this to registered/start-game based on id.
+														ndef.write("player_id: " + playerData().playerId);
+														if (playerData().playerId == 0) {
+															setState("start-game");
+														} else {
+															setState("registered");
+														}
 													}
 													break;
 												case "url":
@@ -68,7 +93,26 @@ const Lobby = () => {
 														decoder.decode(record.data) ===
 															import.meta.env.VITE_APP_URL
 													) {
+														const data = await fetch(
+															"https://among-us-irl.mcdle.net/join",
+															{
+																method: "POST",
+																headers: {
+																	"Content-Type": "application/json",
+																},
+																body: JSON.stringify({
+																	playerId:
+																		gameStateData().playersConnected.length,
+																}),
+															}
+														);
+														const json = (await data.json()) as {
+															playerId: number;
+														};
 														setState("sync-chip");
+														setPlayerData({
+															playerId: json.playerId,
+														});
 													}
 													break;
 												case "mime":
@@ -128,9 +172,12 @@ const Lobby = () => {
 					</p>
 				</Match>
 				<Match when={state() === "start-game"}>
-					<img src='/Logo.svg' alt='Among Us IRL icon' />
+					<img src='/Logo_done.svg' alt='Among Us IRL icon' />
 					<h1 class='text-4xl'>Registered</h1>
-					<p>{playerJoinCount} players have joined.</p>
+					<p>
+						{gameStateData()?.playersConnected.length ?? "??"} players have
+						joined.
+					</p>
 					<p class='px-8 text-center'>
 						Press start when at least 5 players have joined and all players are
 						ready.
@@ -138,7 +185,21 @@ const Lobby = () => {
 					<button
 						class='bg-red-500 px-8 py-4 rounded-2xl text-white font-bold'
 						onClick={() => {
-							setGameState("game");
+							if (
+								gameStateData().playersConnected.length >=
+								import.meta.env.VITE_PLAYER_COUNT
+							) {
+								setGameState("game");
+								fetch("https://among-us-irl.mcdle.net/start", {
+									method: "POST",
+								});
+							} else {
+								alert(
+									`Not enough players! Please wait for at least ${
+										import.meta.env.VITE_PLAYER_COUNT
+									} players to join.`
+								);
+							}
 						}}
 					>
 						Start

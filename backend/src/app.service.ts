@@ -18,7 +18,6 @@ export class AppService {
     this.gameState.bodyFound = false;
     this.gameState.playersRegisteredForVoting = [];
     this.gameState.currentGameId = '';
-    this.gameState.isGameStarted = false;
   }
 
   openGame(playerId: number): OpenGameResponse {
@@ -41,6 +40,7 @@ export class AppService {
   startGame(): number {
     this.shuffle(this.gameState.playersConnected);
     this.gameState.imposterPlayerId = this.gameState.playersConnected[0];
+    this.gameState.isGameStarted = true;
     return this.gameState.imposterPlayerId;
   }
 
