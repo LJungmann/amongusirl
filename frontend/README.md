@@ -32,3 +32,17 @@ Your app is ready to be deployed!
 ## Deployment
 
 You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+
+## Cloudflare Tunnel
+
+Backend server, will permanently bind to `https://among-us-irl.mcdle.net` a domain Elias owns.
+
+```cmd
+cloudflared tunnel run --url localhost:3000 among_us_irl_backend
+```
+
+Frontend server, will create a temporary server instance that always spits out a different url.
+
+```cmd
+cloudflared tunnel --url http://localhost:3001
+```

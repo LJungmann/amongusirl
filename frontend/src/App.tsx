@@ -2,6 +2,7 @@ import {
 	createEffect,
 	createSignal,
 	Match,
+	onMount,
 	Switch,
 	type Component,
 } from "solid-js";
@@ -15,23 +16,15 @@ type State = "lobby" | "game";
 
 export const [gameState, setGameState] = createSignal<State>("lobby");
 const App: Component = () => {
-	createEffect(() => {
-		try {
-			// console.log("gameState", gameState());
-			if (gameState() === "game") {
-				screen.orientation.lock("landscape");
-				setScreenOrientation("landscape");
-			} else {
-				screen.orientation.lock("portrait");
-				setScreenOrientation("portrait");
-			}
-		} catch (error) {
-			console.error("Error locking screen orientation:", error);
-			setScreenOrientation("Error locking screen orientation: " + error);
-		}
+	onMount(async () => {
+		setsignal("querying...");
+		const response = await fetch("https://among-us-irl.mcdle.net/gameState");
+		setsignal("querying done");
+
+		setsignal(await response.json());
 	});
 
-	const [screenOrientation, setScreenOrientation] = createSignal("");
+	const [signal, setsignal] = createSignal<string>("not queried yet");
 
 	return (
 		<div>
@@ -45,6 +38,10 @@ const App: Component = () => {
 			</Switch>
 			{/* <NFCTest /> */}
 			<ReloadPrompt />
+			<p>
+				data:
+				{JSON.stringify(signal(), null, 2)}
+			</p>
 		</div>
 	);
 };

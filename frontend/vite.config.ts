@@ -43,8 +43,11 @@ export default defineConfig({
 		}),
 	],
 	server: {
-		port: 3000,
-		allowedHosts: ["symphony-recovery-promises-shannon.trycloudflare.com"],
+		port: 3001,
+		allowedHosts: [
+			"justin-size-texture-netherlands.trycloudflare.com",
+			"among-us-irl.mcdle.net",
+		],
 	},
 	build: {
 		target: "esnext",
