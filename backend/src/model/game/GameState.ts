@@ -1,14 +1,15 @@
 export class GameState {
   currentGameId: string = '';
-  playersConnected: number[] = [];
+  playersConnected: Array<{ playerId: number }> = [];
   gamesCompleted: number[] = [];
-  alivePlayers: number[] = [];
-  imposterPlayerId: number = -1;
+  alivePlayers: Array<{ playerId: number }> = [];
+  imposterPlayerId: { playerId: number } = { playerId: -1 };
   isGameStarted: boolean = false;
   isVotingActive: boolean = false;
   emergencyButtonPressed: boolean = false;
   killsEnabled: boolean = true;
   bodyFound: boolean = false;
   playersRegisteredForVoting: number[] = [];
-  votes: [number, number][] = []; // tuple, player has x votes
+  votes: [{ playerId: number }, number][] = []; // tuple, player has x votes
+  stations: [string, number, any][] = []; // tuple, stationId and playerId and stationData
 }

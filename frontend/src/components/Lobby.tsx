@@ -45,6 +45,8 @@ const Lobby = () => {
 									setPlayerData({
 										playerId: 0,
 									});
+									localStorage.setItem("among.gameId", json.gameId);
+									localStorage.setItem("among.playerId", "0");
 								} else {
 									setState("registering");
 								}
@@ -100,10 +102,8 @@ const Lobby = () => {
 																headers: {
 																	"Content-Type": "application/json",
 																},
-																body: JSON.stringify({
-																	playerId:
-																		gameStateData().playersConnected.length,
-																}),
+																body:
+																	"" + gameStateData().playersConnected.length,
 															}
 														);
 														const json = (await data.json()) as {
@@ -113,6 +113,16 @@ const Lobby = () => {
 														setPlayerData({
 															playerId: json.playerId,
 														});
+														if (json.playerId !== -99) {
+															localStorage.setItem(
+																"among.playerId",
+																json.playerId.toString()
+															);
+															localStorage.setItem(
+																"among.gameId",
+																gameStateData().currentGameId
+															);
+														}
 													}
 													break;
 												case "mime":

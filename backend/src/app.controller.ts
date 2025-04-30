@@ -15,13 +15,13 @@ export class AppController {
   }
 
   @Post('open')
-  openGame(@Body() playerId: number): OpenGameResponse {
-    return this.appService.openGame(playerId);
+  openGame(@Body() playerId: { playerId: number }): OpenGameResponse {
+    return this.appService.openGame(playerId.playerId);
   }
 
   @Post('join')
-  joinGame(@Body() playerId: number): number {
-    return this.appService.joinGame(playerId);
+  joinGame(@Body() playerId: { playerId: number }): number {
+    return this.appService.joinGame(playerId.playerId);
   }
 
   @Post('start')
@@ -64,5 +64,20 @@ export class AppController {
   @Post('voteFor')
   voteFor(@Body() playerId: number): boolean {
     return this.appService.voteFor(playerId);
+  }
+
+  @Post('startStation')
+  startStation(@Body() data: { stationId: string; playerId: number }): void {
+    this.appService.startStation(data.stationId, data.playerId);
+  }
+
+  @Post('completeStation')
+  completeStation(@Body() data: { stationId: string }): void {
+    this.appService.completeStation(data.stationId);
+  }
+
+  @Post('setStationData')
+  setStationData(@Body() data: { stationId: string; data: any }): void {
+    this.appService.setStationData(data.stationId, data.data);
   }
 }

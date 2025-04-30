@@ -1,9 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ConsoleLogger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      json: true,
+      timestamp: true,
+      colors: true,
+      logLevels: ['error', 'warn', 'log', 'debug', 'verbose'],
+    }),
+  });
 
   app.enableCors('*');
 

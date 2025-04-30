@@ -17,7 +17,7 @@ type GameState = {
 	currentGameId: string;
 	playersConnected: number[];
 	gamesCompleted: number[];
-	alivePlayers: number[];
+	alivePlayers: Array<{ playerId: number }>;
 	imposterPlayerId: number;
 	isGameStarted: boolean;
 	isVotingActive: boolean;
@@ -26,6 +26,7 @@ type GameState = {
 	bodyFound: boolean;
 	playersRegisteredForVoting: number[];
 	votes: [number, number][]; // tuple, player has x votes
+	stations: [string, number, any][];
 };
 
 type PlayerData = {
@@ -46,15 +47,25 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	playersConnected: [],
 	playersRegisteredForVoting: [],
 	votes: [],
+	stations: [],
 });
 export const [playerData, setPlayerData] = createSignal<PlayerData>({
-	playerId: -1,
+	playerId: -99,
 });
 const App: Component = () => {
 	onMount(() => {
 		setInterval(async () => {
 			const response = await fetch("https://among-us-irl.mcdle.net/gameState");
 			setGameStateData((await response.json()) as GameState);
+			const gameId = localStorage.getItem("among.gameId");
+			const playerId = localStorage.getItem("among.playerId");
+			if (playerData().playerId === -99 && gameId && playerId) {
+				if (gameId == gameStateData().currentGameId && playerId) {
+					setPlayerData({
+						playerId: parseInt(playerId),
+					});
+				}
+			}
 		}, 1000);
 	});
 
@@ -84,14 +95,14 @@ const App: Component = () => {
 			</Switch>
 			{/* <NFCTest /> */}
 			<ReloadPrompt />
-			<p>
+			<pre>
 				data:
 				{JSON.stringify(gameStateData(), null, 2)}
-			</p>
-			<p>
+			</pre>
+			<pre>
 				playerdata:
 				{JSON.stringify(playerData(), null, 2)}
-			</p>
+			</pre>
 			<button
 				class='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
 				onClick={async () => {
@@ -102,6 +113,8 @@ const App: Component = () => {
 					setPlayerData({
 						playerId: -1,
 					});
+					localStorage.removeItem("among.gameId");
+					localStorage.removeItem("among.playerId");
 				}}
 			>
 				Reset Game

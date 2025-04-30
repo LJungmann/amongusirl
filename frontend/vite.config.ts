@@ -45,7 +45,7 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"justin-size-texture-netherlands.trycloudflare.com",
+			"provincial-rhythm-matching-replaced.trycloudflare.com",
 			"among-us-irl.mcdle.net",
 		],
 	},
