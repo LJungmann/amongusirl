@@ -6,6 +6,7 @@ import { GameState } from './model/game/GameState';
 @Injectable()
 export class AppService {
   private gameState: GameState = new GameState();
+  private meetingTimer: NodeJS.Timeout | null = null;
 
   resetGameState(): void {
     this.gameState.playersConnected = [];
@@ -14,6 +15,8 @@ export class AppService {
     this.gameState.imposterPlayerId = { playerId: -1 };
     this.gameState.gamesCompleted = [];
     this.gameState.emergencyButtonPressed = false;
+    this.gameState.meetingEndTime = -1;
+    this.gameState.gameOver = 'IN_PROGRESS';
     this.gameState.isVotingActive = false;
     this.gameState.bodyFound = false;
     this.gameState.playersRegisteredForVoting = [];
@@ -46,10 +49,6 @@ export class AppService {
     return this.gameState.imposterPlayerId.playerId;
   }
 
-  completeGame(stationId: number): void {
-    this.gameState.gamesCompleted.push(stationId);
-  }
-
   getGameState(): GameState {
     return this.gameState;
   }
@@ -59,6 +58,7 @@ export class AppService {
       (p) => p.playerId === playerId,
     );
     this.gameState.alivePlayers.splice(index, 1);
+    this.checkIfGameOver();
   }
 
   emergencyButton(): void {
@@ -87,7 +87,7 @@ export class AppService {
     if (this.gameState.emergencyButtonPressed || this.gameState.bodyFound) {
       // player not already registered
       if (
-        this.gameState.playersRegisteredForVoting.indexOf(playerId, 0) !== -1
+        this.gameState.playersRegisteredForVoting.indexOf(playerId, 0) === -1
       ) {
         this.gameState.playersRegisteredForVoting.push(playerId);
       }
@@ -100,11 +100,20 @@ export class AppService {
           this.gameState.votes.push([alivePlayerId, 0]);
         });
       }
-      if (this.gameState.votes.length == this.gameState.alivePlayers.length) {
-        setTimeout(() => {
-          this.gameState.emergencyButtonPressed = false;
-          this.gameState.killsEnabled = true;
-        }, 10000); // 10 seconds // TODO change that later.
+      if (
+        this.gameState.playersRegisteredForVoting.length ==
+        this.gameState.alivePlayers.length
+      ) {
+        const defaultTime = '10';
+        this.gameState.meetingEndTime =
+          Date.now() +
+          parseInt(process.env.MEETING_DURATION_S ?? defaultTime) * 1000;
+        this.meetingTimer = setTimeout(
+          () => {
+            this.finishVoting();
+          },
+          parseInt(process.env.MEETING_DURATION_S ?? defaultTime) * 1000, // TODO process env not working?
+        ); // 10 seconds by default
       }
       return true;
     } else {
@@ -113,6 +122,7 @@ export class AppService {
   }
 
   voteFor(playerId: number): boolean {
+    console.log('voteFor', playerId, this.gameState.votes);
     // search for entry of the player, +1 the number
     const voteEntry = this.gameState.votes.find(
       (vote) => vote[0].playerId === playerId,
@@ -121,6 +131,14 @@ export class AppService {
       voteEntry[1]++;
     } else {
       return false;
+    }
+    // check if all votes have been casted
+    if (
+      this.gameState.alivePlayers.length ===
+      this.gameState.votes.reduce((acc, vote) => acc + vote[1], 0)
+    ) {
+      console.log('all votes casted');
+      this.finishVoting();
     }
     return true;
   }
@@ -155,6 +173,8 @@ export class AppService {
     console.log('completeStation', this.gameState.stations, stationId, index);
     if (index !== -1) {
       this.gameState.stations.splice(index, 1);
+      this.gameState.gamesCompleted.push(stationId);
+      this.checkIfGameOver();
     }
   }
 
@@ -181,6 +201,63 @@ export class AppService {
         array[randomIndex],
         array[currentIndex],
       ];
+    }
+  }
+
+  private finishVoting() {
+    if (this.gameState.votes.length > 0) {
+      // Find the player with the most votes
+      const mostVotedPlayer = this.gameState.votes.reduce((prev, current) => {
+        return prev[1] > current[1] ? prev : current;
+      });
+      // if no one voted, no one is killed
+      if (mostVotedPlayer[1] === 0) {
+        console.log('no votes, no one killed');
+      } else {
+        console.log('mostVotedPlayer', mostVotedPlayer);
+        // check if other players have the same amount of votes
+        const mostVotedPlayers = this.gameState.votes.filter(
+          (vote) => vote[1] === mostVotedPlayer[1],
+        );
+        console.log('mostVotedPlayers', mostVotedPlayers);
+        // if more than one player has the same amount of votes, no one is killed
+        if (mostVotedPlayers.length > 1) {
+          console.log('no one killed');
+        } else {
+          // kill the player with the most votes
+          const playerToKill = mostVotedPlayer[0].playerId;
+          console.log('killing player', playerToKill);
+          this.killPlayer(playerToKill);
+        }
+      }
+    }
+
+    console.log('finishVoting', this.gameState.votes);
+
+    // Reset voting state
+    this.gameState.emergencyButtonPressed = false;
+    this.gameState.killsEnabled = true;
+    this.gameState.votes = []; // reset votes
+    this.gameState.isVotingActive = false;
+    if (this.meetingTimer) {
+      clearTimeout(this.meetingTimer);
+    }
+  }
+
+  private checkIfGameOver() {
+    if (
+      this.gameState.alivePlayers.length <= 2 &&
+      this.gameState.alivePlayers.findIndex(
+        (x) => x.playerId === this.gameState.imposterPlayerId.playerId,
+      ) !== -1
+    ) {
+      this.gameState.gameOver = 'IMPOSTER_WIN';
+    }
+    if (
+      this.gameState.gamesCompleted.length >=
+      parseInt(process.env.STATIONS_REQUIRED ?? '5') // TODO process env not working?
+    ) {
+      this.gameState.gameOver = 'CREWMATES_WIN';
     }
   }
 }

@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { OpenGameResponse } from './model/game/OpenGameResponse';
-import { OpenGameRequest } from './model/game/OpenGameRequest';
 import { GameState } from './model/game/GameState';
 
 @Controller()
@@ -29,11 +28,6 @@ export class AppController {
     return this.appService.startGame();
   }
 
-  @Post('complete')
-  completeGame(@Body() stationId: number): void {
-    this.appService.completeGame(stationId);
-  }
-
   @Get('gameState')
   gameState(): GameState {
     return this.appService.getGameState();
@@ -57,13 +51,14 @@ export class AppController {
   }
 
   @Post('registerVoting')
-  registerForVoting(@Body() playerId: number): boolean {
-    return this.appService.registerForVoting(playerId);
+  registerForVoting(@Body() data: { playerId: number }): boolean {
+    console.log('registerForVoting', data.playerId);
+    return this.appService.registerForVoting(data.playerId);
   }
 
   @Post('voteFor')
-  voteFor(@Body() playerId: number): boolean {
-    return this.appService.voteFor(playerId);
+  voteFor(@Body() data: { playerId: number }): boolean {
+    return this.appService.voteFor(data.playerId);
   }
 
   @Post('startStation')

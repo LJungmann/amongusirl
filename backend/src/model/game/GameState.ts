@@ -1,12 +1,14 @@
 export class GameState {
   currentGameId: string = '';
   playersConnected: Array<{ playerId: number }> = [];
-  gamesCompleted: number[] = [];
+  gamesCompleted: string[] = [];
   alivePlayers: Array<{ playerId: number }> = [];
   imposterPlayerId: { playerId: number } = { playerId: -1 };
   isGameStarted: boolean = false;
   isVotingActive: boolean = false;
   emergencyButtonPressed: boolean = false;
+  meetingEndTime: number = -1; // timestamp in ms
+  gameOver: 'CREWMATES_WIN' | 'IMPOSTER_WIN' | 'IN_PROGRESS' = 'IN_PROGRESS';
   killsEnabled: boolean = true;
   bodyFound: boolean = false;
   playersRegisteredForVoting: number[] = [];

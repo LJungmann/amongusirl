@@ -80,7 +80,9 @@ const Lobby = () => {
 															.decode(record.data)
 															.includes("player_id: ")
 													) {
-														ndef.write("player_id: " + playerData().playerId);
+														await ndef.write(
+															"player_id: " + playerData().playerId
+														);
 														if (playerData().playerId == 0) {
 															setState("start-game");
 														} else {

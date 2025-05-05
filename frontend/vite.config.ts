@@ -45,7 +45,7 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"provincial-rhythm-matching-replaced.trycloudflare.com",
+			"wisdom-step-cyber-starring.trycloudflare.com",
 			"among-us-irl.mcdle.net",
 		],
 	},

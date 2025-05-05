@@ -22,6 +22,8 @@ type GameState = {
 	isGameStarted: boolean;
 	isVotingActive: boolean;
 	emergencyButtonPressed: boolean;
+	meetingEndTime: number; // timestamp in ms
+	gameOver: "CREWMATES_WIN" | "IMPOSTER_WIN" | "IN_PROGRESS";
 	killsEnabled: boolean;
 	bodyFound: boolean;
 	playersRegisteredForVoting: number[];
@@ -39,6 +41,8 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	bodyFound: false,
 	currentGameId: "",
 	emergencyButtonPressed: false,
+	meetingEndTime: -1,
+	gameOver: "IN_PROGRESS",
 	gamesCompleted: [],
 	imposterPlayerId: -1,
 	isGameStarted: false,
