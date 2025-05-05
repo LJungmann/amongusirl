@@ -1,0 +1,134 @@
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import * as mqtt from 'mqtt';
+import { AppService } from 'src/app.service';
+import { Wiring } from 'src/model/wiring/Wiring';
+import { WiresService } from 'src/wires/wires.service';
+
+@Injectable()
+export class MqttBridgeService implements OnModuleInit {
+  private ttnClient: mqtt.MqttClient;
+  private localClient: mqtt.MqttClient;
+
+  constructor(
+    private appService: AppService,
+    private wiresService: WiresService,
+  ) {}
+
+  onModuleInit() {
+    this.connectToTTN();
+    this.connectToLocalBroker();
+  }
+
+  // TODO: to finish game stations
+  // On game start -> generate list of stations a player has to complete, save in gamestate
+  // if player occupies a station -> check if he has this station in his list. If not, reject. Is yes, set as occupied in game state
+  // If a station sends a task complete, while it should not be occupied, ignore. Else, push to completed stations.
+
+  private connectToTTN() {
+    const ttnAppId = 'amongusirl@ttn';
+    const ttnApiKey =
+      'NNSXS.YVGFLT3KOIQLHYSWE5QFZGYUM2M6LXOOUI4W4ZI.TFYPFYS7ZYAIU7FFYEJAJI2V3PCL5CW5VO5PXWSEV2CR2BZVTTWQ';
+
+    this.ttnClient = mqtt.connect('mqtts://eu1.cloud.thethings.network:8883', {
+      username: ttnAppId,
+      password: ttnApiKey,
+    });
+
+    this.ttnClient.on('connect', () => {
+      console.log('✅ Connected with TTN MQTT');
+      this.ttnClient.subscribe('#');
+    });
+
+    this.ttnClient.on('message', (topic, payload) => {
+      console.log(`📨 TTN-Message: ${topic}`);
+
+      // TODO: isolate from topic: v3/amongusirl@ttn/devices/wires/up
+      // split by /, second last is device_id e.g. wires, last up is payload_message
+      // then get decoded_payload and parse to perform further action
+      // by f_ports we devide intents of the stations
+      // f_port 1 reserved for completing a station
+      // f_port 2 is a message from the game that is needed (e.g. wire settings)
+
+      let parsedTopic = this.parseTopic(topic);
+      let game_id = parsedTopic[0];
+      let intent = parsedTopic[1];
+      if (intent === 'join') {
+        console.log('join request, exiting');
+        return;
+      }
+      try {
+        const message = JSON.parse(payload.toString());
+        console.log(`📨 [${topic}]`, message);
+        let uplink_message = message.uplink_message;
+        if (uplink_message !== undefined) {
+          console.log(uplink_message.decoded_payload);
+        }
+        if (game_id === 'wires') {
+          console.log('message from wires received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
+          if (text.completed) {
+            this.completeGame('wires'); // TODO: write stationId here instead of string??
+          } else if (text.settings !== undefined) {
+            let wiring_right = text.settings.split(',');
+            let wiring = new Wiring();
+            wiring.wiring = [
+              [0, wiring_right[0]],
+              [1, wiring_right[1]],
+              [2, wiring_right[2]],
+              [3, wiring_right[3]],
+            ];
+            this.wiresService.saveWiring(wiring);
+          } else {
+            console.error(
+              '❌ sent a message that is not valid to be processed',
+              text,
+            );
+          }
+        } else if (game_id === 'simon') {
+          console.log('message from simon received ✅');
+        } else if (game_id === 'levers') {
+          console.log('message from levers received ✅');
+        } else if (game_id === 'lightsout') {
+          console.log('message from lightsout received ✅');
+        } else if (game_id === 'safecrack') {
+          console.log('message from safecrack received ✅');
+        } else if (game_id === 'emergency') {
+          console.log('message from emergency received ✅');
+        }
+      } catch (error) {
+        console.error('❌ Error during json parsing:', payload.toString());
+      }
+      this.forwardToLocalBroker(topic, payload);
+    });
+  }
+
+  private parseTopic(topic: string): [string, string] {
+    let split_topic = topic.split('/');
+    if (split_topic.length >= 2) {
+      return [
+        split_topic[split_topic.length - 2],
+        split_topic[split_topic.length - 1],
+      ];
+    } else {
+      return ['N/A', 'N/A'];
+    }
+  }
+
+  private completeGame(game_id: string) {
+    this.appService.completeStation(game_id /*TODO: game_id to stationId*/);
+  }
+
+  private connectToLocalBroker() {
+    this.localClient = mqtt.connect('mqtt://192.168.1.1:1883'); // ggf. mit Auth
+
+    this.localClient.on('connect', () => {
+      console.log('✅ Connected with local MQTT-Broker');
+    });
+  }
+
+  private forwardToLocalBroker(topic: string, message: Buffer) {
+    const newTopic = `ttn/${topic}`; // Optional: Mapping
+    this.localClient.publish(newTopic, message);
+  }
+}

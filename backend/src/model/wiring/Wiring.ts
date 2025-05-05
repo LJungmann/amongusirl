@@ -4,20 +4,9 @@
  */
 export class Wiring {
   public wiring: [
-    [WiringColor, WiringSymbol],
-    [WiringColor, WiringSymbol],
-    [WiringColor, WiringSymbol],
+    [number, number],
+    [number, number],
+    [number, number],
+    [number, number],
   ];
-}
-
-export enum WiringColor {
-  Red,
-  Green,
-  Yellow,
-}
-
-export enum WiringSymbol {
-  Sun,
-  Heart,
-  Clown,
 }
