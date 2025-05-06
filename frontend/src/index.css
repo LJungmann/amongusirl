@@ -1,11 +1,31 @@
 @import "tailwindcss";
 
+@font-face {
+	font-family: "Amatic SC";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/fonts/AmaticSC-Regular.ttf") format("truetype");
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Amatic SC";
+	font-style: normal;
+	font-weight: 700;
+	src: url("/fonts/AmaticSC-Bold.ttf") format("truetype");
+	font-display: swap;
+}
+
 html,
 body {
-  overscroll-behavior-y: contain;
+	overscroll-behavior-y: contain;
+	font-family: "Amatic SC", sans-serif;
+	font-weight: 400;
+	font-style: normal;
 }
 
 body {
-  min-height: calc(100% + env(safe-area-inset-top));
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+	min-height: calc(100% + env(safe-area-inset-top));
+	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+		env(safe-area-inset-left);
 }

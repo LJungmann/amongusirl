@@ -1,12 +1,4 @@
-import {
-	createEffect,
-	createSignal,
-	Match,
-	onMount,
-	Show,
-	Switch,
-	type Component,
-} from "solid-js";
+import { createEffect, createSignal, Match, onMount, Show, Switch, type Component } from "solid-js";
 
 import ReloadPrompt from "./components/ReloadPromp";
 import Lobby from "./components/Lobby";
@@ -85,7 +77,13 @@ const App: Component = () => {
 	});
 
 	return (
-		<div class='w-screen h-screen relative'>
+		<div class="w-screen h-screen relative">
+			<div class="flex">
+				<img class="ml-2" width={35} src="/Logo.svg" alt="Among Us IRL icon" />
+				<p class="text-3xl m-2">
+					<b>Among Us IRL</b>
+				</p>
+			</div>
 			<Switch>
 				<Match when={gameState() === "lobby"}>
 					<Lobby />
@@ -99,7 +97,7 @@ const App: Component = () => {
 			</Show>
 			<Show when={import.meta.env.MODE === "development"}>
 				<button
-					class='fixed bottom-5 right-5 w-16 h-16 rounded-full bg-teal-500 text-white text-2xl font-bold'
+					class="fixed bottom-5 right-5 w-16 h-16 rounded-full bg-teal-500 text-white text-2xl font-bold"
 					onClick={() => {
 						setDebug(!debug());
 					}}

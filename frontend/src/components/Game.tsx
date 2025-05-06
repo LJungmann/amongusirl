@@ -37,14 +37,14 @@ const Game = () => {
 				setPlayState("station");
 			} else if (
 				gameStateData().alivePlayers.findIndex(
-					(p) => p.playerId === playerData()?.playerId
+					(p) => p.playerId === playerData()?.playerId,
 				) === -1
 			) {
 				setPlayState("dead");
 			} else {
 				setPlayState("game");
 			}
-		})
+		}),
 	);
 
 	const [showRoleInfo, setShowRoleInfo] = createSignal(false);
@@ -60,7 +60,7 @@ const Game = () => {
 			ndef.addEventListener("readingerror", () => {
 				console.log(
 					"readLog",
-					"Argh! Cannot read data from the NFC tag. Try another one?"
+					"Argh! Cannot read data from the NFC tag. Try another one?",
 				);
 			});
 
@@ -79,8 +79,14 @@ const Game = () => {
 		<div>
 			<Show
 				when={!showRoleInfo()}
-				fallback={<YourRole setShowRoleInfo={setShowRoleInfo} />}
+				fallback={
+					<>
+						{/* display the players role */}
+						<YourRole setShowRoleInfo={setShowRoleInfo} />
+					</>
+				}
 			>
+				{/* display the players role */}
 				<h1>Game</h1>
 				<p>
 					Stations completed:
@@ -141,7 +147,7 @@ export async function handleReading(event: Event) {
 						// Other player ID
 						if (
 							gameStateData().alivePlayers.findIndex(
-								(x) => x.playerId === playerId
+								(x) => x.playerId === playerId,
 							) === -1
 						) {
 							alert("Player " + playerId + " is dead! Reporting...");
@@ -187,7 +193,7 @@ export async function handleReading(event: Event) {
 									headers: {
 										"Content-Type": "application/json",
 									},
-								}
+								},
 							);
 							alert(await response.text());
 						}
@@ -206,7 +212,7 @@ export async function handleReading(event: Event) {
 								headers: {
 									"Content-Type": "application/json",
 								},
-							}
+							},
 						);
 					}
 				}
