@@ -9,11 +9,11 @@ export class AppService {
   private meetingTimer: NodeJS.Timeout | null = null;
 
   public allStationIds: string[] = [
-    'wires',
-    'simon',
-    'levers',
-    'lightsout',
-    'safecrack',
+    'station_wires',
+    'station_simon',
+    'station_levers',
+    'station_lightsout',
+    'station_safecrack',
   ];
 
   resetGameState(): void {

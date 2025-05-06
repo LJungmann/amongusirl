@@ -81,6 +81,9 @@ export class AppController {
   @Post('completeStation')
   @ApiBody({ type: StationIdDto })
   completeStation(@Body() data: StationIdDto): void {
+    if (!data.stationId.startsWith('station_')) {
+      data.stationId = 'station_' + data.stationId;
+    }
     this.appService.completeStation(data.stationId);
   }
 

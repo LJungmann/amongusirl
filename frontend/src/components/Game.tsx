@@ -9,7 +9,7 @@ import {
 	Show,
 	Switch,
 } from "solid-js";
-import { gameStateData, playerData } from "../App";
+import { gameStateData, playerData, setGameState, setPlayerData } from "../App";
 import Meeting from "./GameStates/Meeting";
 import BaseStation from "./GameStates/Stations/BaseStation";
 import ScannedPlayer from "./GameStates/ScannedPlayer";
@@ -78,42 +78,65 @@ const Game = () => {
 	return (
 		<div>
 			<Show
-				when={!showRoleInfo()}
+				when={gameStateData().gameOver === "IN_PROGRESS"}
 				fallback={
-					<>
-						{/* display the players role */}
-						<YourRole setShowRoleInfo={setShowRoleInfo} />
-					</>
+					<div>
+						<p>Game over! {gameStateData().gameOver}</p>
+						<button
+							class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+							onClick={async () => {
+								await fetch("https://among-us-irl.mcdle.net/reset", {
+									method: "POST",
+								});
+								setGameState("lobby");
+								setPlayerData({
+									playerId: -1,
+								});
+							}}
+						>
+							Back to menu
+						</button>
+					</div>
 				}
 			>
-				{/* display the players role */}
-				<h1>Game</h1>
-				<p>
-					Stations completed:
-					<progress
-						max={gameStateData().playersConnected.length * 3}
-						value={gameStateData().gamesCompleted.length}
-					/>{" "}
-					{gameStateData().gamesCompleted.length}/
-					{gameStateData().playersConnected.length * 3}
-				</p>
-				<Show when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
-					<ScannedPlayer time={time} />
+				<Show
+					when={!showRoleInfo()}
+					fallback={
+						<>
+							{/* display the players role */}
+							<YourRole setShowRoleInfo={setShowRoleInfo} />
+						</>
+					}
+				>
+					{/* main game display */}
+					<h1>Game</h1>
+					<p>
+						Stations completed:
+						<progress
+							max={gameStateData().playersConnected.length * 3}
+							value={gameStateData().gamesCompleted.length}
+						/>{" "}
+						{gameStateData().gamesCompleted.length}/
+						{gameStateData().playersConnected.length * 3}
+					</p>
+					<Show when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
+						<ScannedPlayer time={time} />
+					</Show>
+					<Switch>
+						<Match when={playState() === "emergency"}>
+							<Meeting />
+						</Match>
+						<Match when={playState() === "game"}>
+							<p>In game!</p>
+						</Match>
+						<Match when={playState() === "station"}>
+							<BaseStation />
+						</Match>
+						<Match when={playState() === "dead"}>
+							<p>You have been killed!</p>
+						</Match>
+					</Switch>
 				</Show>
-				<Switch>
-					<Match when={playState() === "emergency"}>
-						<Meeting />
-					</Match>
-					<Match when={playState() === "game"}>
-						<p>In game!</p>
-					</Match>
-					<Match when={playState() === "station"}>
-						<BaseStation />
-					</Match>
-					<Match when={playState() === "dead"}>
-						<p>You have been killed!</p>
-					</Match>
-				</Switch>
 			</Show>
 		</div>
 	);
@@ -122,6 +145,9 @@ const Game = () => {
 export default Game;
 
 export async function handleReading(event: Event) {
+	if (gameStateData().gameOver !== "IN_PROGRESS") {
+		return;
+	}
 	const { message, serialNumber } = event as NDEFReadingEvent;
 	const decoder = new TextDecoder();
 	for (const record of message.records) {
@@ -198,6 +224,14 @@ export async function handleReading(event: Event) {
 							alert(await response.text());
 						}
 					} else {
+						if (
+							gameStateData().alivePlayers.findIndex(
+								(x) => x.playerId === playerData().playerId,
+							) === -1
+						) {
+							alert("You are dead! You cannot call an emergency meeting!");
+							return;
+						}
 						alert("Emergency Meeting called!");
 						await fetch("https://among-us-irl.mcdle.net/emergency", {
 							method: "POST",

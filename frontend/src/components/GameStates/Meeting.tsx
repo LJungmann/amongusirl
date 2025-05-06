@@ -42,6 +42,14 @@ const Meeting = () => {
 							<button
 								class='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
 								onClick={async () => {
+									if (
+										gameStateData().alivePlayers.findIndex(
+											(y) => y.playerId === playerData().playerId
+										) === -1
+									) {
+										alert("You are dead! You cannot vote!");
+										return;
+									}
 									alert(
 										"Voted for " +
 											x.playerId +
