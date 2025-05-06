@@ -261,7 +261,7 @@ export class AppService {
     // enough stations completed or imposter is dead
     if (
       this.gameState.gamesCompleted.length >=
-        parseInt(process.env.STATIONS_REQUIRED ?? '5') || // TODO process env not working?
+        this.gameState.playersConnected.length * 3 ||
       this.gameState.alivePlayers.findIndex(
         (x) => x.playerId === this.gameState.imposterPlayerId.playerId,
       ) === -1

@@ -13,6 +13,7 @@ import { gameStateData, playerData } from "../App";
 import Meeting from "./GameStates/Meeting";
 import BaseStation from "./GameStates/Stations/BaseStation";
 import ScannedPlayer from "./GameStates/ScannedPlayer";
+import YourRole from "./GameStates/YourRole";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -46,7 +47,7 @@ const Game = () => {
 		})
 	);
 
-	const [showRoleInfo, setShowRoleInfo] = createSignal();
+	const [showRoleInfo, setShowRoleInfo] = createSignal(false);
 
 	const ndef = new NDEFReader();
 	onMount(async () => {
@@ -78,28 +79,18 @@ const Game = () => {
 		<div>
 			<Show
 				when={!showRoleInfo()}
-				fallback={
-					<div class='flex flex-col items-center justify-center gap-4'>
-						<p>
-							You are{" "}
-							{(gameStateData().imposterPlayerId as any).playerId ===
-							playerData().playerId
-								? "an imposter!"
-								: "a crewmate!"}
-						</p>
-						<button
-							class='bg-green-400 p-4 rounded-2xl'
-							onClick={() => {
-								setShowRoleInfo(false);
-							}}
-						>
-							Let's play!
-						</button>
-					</div>
-				}
+				fallback={<YourRole setShowRoleInfo={setShowRoleInfo} />}
 			>
 				<h1>Game</h1>
-				<p>Progress: {gameStateData().stations.length} Stations completed</p>
+				<p>
+					Stations completed:
+					<progress
+						max={gameStateData().playersConnected.length * 3}
+						value={gameStateData().gamesCompleted.length}
+					/>{" "}
+					{gameStateData().gamesCompleted.length}/
+					{gameStateData().playersConnected.length * 3}
+				</p>
 				<Show when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
 					<ScannedPlayer time={time} />
 				</Show>
