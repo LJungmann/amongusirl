@@ -45,7 +45,7 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"wisdom-step-cyber-starring.trycloudflare.com",
+			"char-minus-indexed-pi.trycloudflare.com",
 			"among-us-irl.mcdle.net",
 		],
 	},

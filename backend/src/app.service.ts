@@ -67,6 +67,7 @@ export class AppService {
   }
 
   bodyFound(playerId: number): void {
+    console.log('bodyFound', playerId, this.gameState.alivePlayers);
     if (!this.gameState.emergencyButtonPressed) {
       // player must be dead to be found dead
       if (
@@ -74,7 +75,7 @@ export class AppService {
           (p) => p.playerId === playerId,
         ) === -1
       ) {
-        this.gameState.killsEnabled = false;
+        this.emergencyButton();
         this.gameState.bodyFound = true;
       }
     }
@@ -239,12 +240,16 @@ export class AppService {
     this.gameState.killsEnabled = true;
     this.gameState.votes = []; // reset votes
     this.gameState.isVotingActive = false;
+    this.gameState.playersRegisteredForVoting = [];
+    this.gameState.bodyFound = false;
+    this.gameState.meetingEndTime = -1; // reset meeting end time
     if (this.meetingTimer) {
       clearTimeout(this.meetingTimer);
     }
   }
 
   private checkIfGameOver() {
+    // too little players remaining and imposter is alive
     if (
       this.gameState.alivePlayers.length <= 2 &&
       this.gameState.alivePlayers.findIndex(
@@ -253,9 +258,13 @@ export class AppService {
     ) {
       this.gameState.gameOver = 'IMPOSTER_WIN';
     }
+    // enough stations completed or imposter is dead
     if (
       this.gameState.gamesCompleted.length >=
-      parseInt(process.env.STATIONS_REQUIRED ?? '5') // TODO process env not working?
+        parseInt(process.env.STATIONS_REQUIRED ?? '5') || // TODO process env not working?
+      this.gameState.alivePlayers.findIndex(
+        (x) => x.playerId === this.gameState.imposterPlayerId.playerId,
+      ) === -1
     ) {
       this.gameState.gameOver = 'CREWMATES_WIN';
     }

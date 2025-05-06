@@ -10,6 +10,121 @@ const Lobby = () => {
 		| "registered"
 		| "start-game";
 	const [state, setState] = createSignal<State>("lobby");
+
+	async function handleStartGame() {
+		if ("NDEFReader" in window) {
+			if (gameStateData().currentGameId.length < 8) {
+				const data = await fetch("https://among-us-irl.mcdle.net/open", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						playerId: 0,
+					}),
+				});
+				const json = (await data.json()) as {
+					playerId: number;
+					gameId: string;
+				};
+				setState("sync-chip");
+				setPlayerData({
+					playerId: 0,
+				});
+				localStorage.setItem("among.gameId", json.gameId);
+				localStorage.setItem("among.playerId", "0");
+			} else {
+				setState("registering");
+			}
+			try {
+				const ndef = new NDEFReader();
+				await ndef.scan();
+
+				ndef.addEventListener("readingerror", () => {
+					console.log(
+						"readLog",
+						"Argh! Cannot read data from the NFC tag. Try another one?"
+					);
+				});
+
+				ndef.addEventListener("reading", async (event) => {
+					const { message, serialNumber } = event as NDEFReadingEvent;
+
+					const decoder = new TextDecoder();
+					for (const record of message.records) {
+						switch (record.recordType) {
+							case "text":
+								const textDecoder = new TextDecoder(record.encoding);
+								// log(
+								//     "readLog",
+								//     `Text: ${textDecoder.decode(record.data)} (${
+								//         record.lang
+								//     })`
+								// );
+								if (textDecoder.decode(record.data).includes("player_id: ")) {
+									await ndef.write("player_id: " + playerData().playerId);
+									if (playerData().playerId == 0) {
+										setState("start-game");
+									} else {
+										setState("registered");
+									}
+								}
+								break;
+							case "url":
+								// log("readLog", `URL: ${decoder.decode(record.data)}`);
+								if (
+									state() === "registering" &&
+									decoder.decode(record.data) === import.meta.env.VITE_APP_URL
+								) {
+									const data = await fetch(
+										"https://among-us-irl.mcdle.net/join",
+										{
+											method: "POST",
+											headers: {
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify({
+												playerId: gameStateData().playersConnected.length,
+											}),
+										}
+									);
+									const playerId = parseInt(await data.text());
+									setState("sync-chip");
+									setPlayerData({
+										playerId: playerId,
+									});
+									if (playerId !== -99) {
+										localStorage.setItem("among.playerId", playerId.toString());
+										localStorage.setItem(
+											"among.gameId",
+											gameStateData().currentGameId
+										);
+									}
+								}
+								break;
+							case "mime":
+								if (record.mediaType === "application/json") {
+									// log(
+									//     "readLog",
+									//     `JSON: ${JSON.parse(decoder.decode(record.data))}`
+									// );
+								} else {
+									// log("readLog", `Media not handled`);
+								}
+								break;
+							default:
+							// log("readLog", `Record not handled`);
+						}
+					}
+				});
+			} catch (error) {
+				// log("readLog", "Argh! " + error);
+			}
+		} else {
+			setState("error-nfc");
+		}
+	}
+
 	return (
 		<div class='flex flex-col items-center justify-center h-screen bg-gray-100 gap-4'>
 			<Switch>
@@ -22,133 +137,7 @@ const Lobby = () => {
 					</p>
 					<button
 						class='bg-red-500 px-8 py-4 rounded-2xl text-white font-bold'
-						onClick={async () => {
-							if ("NDEFReader" in window) {
-								if (gameStateData().currentGameId.length < 8) {
-									const data = await fetch(
-										"https://among-us-irl.mcdle.net/open",
-										{
-											method: "POST",
-											headers: {
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify({
-												playerId: 0,
-											}),
-										}
-									);
-									const json = (await data.json()) as {
-										playerId: number;
-										gameId: string;
-									};
-									setState("sync-chip");
-									setPlayerData({
-										playerId: 0,
-									});
-									localStorage.setItem("among.gameId", json.gameId);
-									localStorage.setItem("among.playerId", "0");
-								} else {
-									setState("registering");
-								}
-								try {
-									const ndef = new NDEFReader();
-									await ndef.scan();
-
-									ndef.addEventListener("readingerror", () => {
-										console.log(
-											"readLog",
-											"Argh! Cannot read data from the NFC tag. Try another one?"
-										);
-									});
-
-									ndef.addEventListener("reading", async (event) => {
-										const { message, serialNumber } = event as NDEFReadingEvent;
-
-										const decoder = new TextDecoder();
-										for (const record of message.records) {
-											switch (record.recordType) {
-												case "text":
-													const textDecoder = new TextDecoder(record.encoding);
-													// log(
-													//     "readLog",
-													//     `Text: ${textDecoder.decode(record.data)} (${
-													//         record.lang
-													//     })`
-													// );
-													if (
-														textDecoder
-															.decode(record.data)
-															.includes("player_id: ")
-													) {
-														await ndef.write(
-															"player_id: " + playerData().playerId
-														);
-														if (playerData().playerId == 0) {
-															setState("start-game");
-														} else {
-															setState("registered");
-														}
-													}
-													break;
-												case "url":
-													// log("readLog", `URL: ${decoder.decode(record.data)}`);
-													if (
-														state() === "registering" &&
-														decoder.decode(record.data) ===
-															import.meta.env.VITE_APP_URL
-													) {
-														const data = await fetch(
-															"https://among-us-irl.mcdle.net/join",
-															{
-																method: "POST",
-																headers: {
-																	"Content-Type": "application/json",
-																},
-																body:
-																	"" + gameStateData().playersConnected.length,
-															}
-														);
-														const json = (await data.json()) as {
-															playerId: number;
-														};
-														setState("sync-chip");
-														setPlayerData({
-															playerId: json.playerId,
-														});
-														if (json.playerId !== -99) {
-															localStorage.setItem(
-																"among.playerId",
-																json.playerId.toString()
-															);
-															localStorage.setItem(
-																"among.gameId",
-																gameStateData().currentGameId
-															);
-														}
-													}
-													break;
-												case "mime":
-													if (record.mediaType === "application/json") {
-														// log(
-														//     "readLog",
-														//     `JSON: ${JSON.parse(decoder.decode(record.data))}`
-														// );
-													} else {
-														// log("readLog", `Media not handled`);
-													}
-													break;
-												default:
-												// log("readLog", `Record not handled`);
-											}
-										}
-									});
-								} catch (error) {
-									// log("readLog", "Argh! " + error);
-								}
-							} else {
-								setState("error-nfc");
-							}
-						}}
+						onClick={handleStartGame}
 					>
 						Start Game
 					</button>

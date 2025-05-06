@@ -34,8 +34,8 @@ export class AppController {
   }
 
   @Post('kill')
-  killPlayer(@Body() playerId: number): void {
-    this.appService.killPlayer(playerId);
+  killPlayer(@Body() data: { playerId: number }): void {
+    this.appService.killPlayer(data.playerId);
   }
 
   // emergency button
@@ -46,8 +46,8 @@ export class AppController {
 
   // dead body found
   @Post('bodyFound')
-  bodyFound(@Body() playerId: number): void {
-    this.appService.bodyFound(playerId);
+  bodyFound(@Body() data: { playerId: number }): void {
+    this.appService.bodyFound(data.playerId);
   }
 
   @Post('registerVoting')

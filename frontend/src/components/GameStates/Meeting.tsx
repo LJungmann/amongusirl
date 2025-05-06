@@ -34,12 +34,7 @@ const Meeting = () => {
 			<p>Meeting over in: {getMeetingEndTime()}</p>
 			<ul>
 				<For
-					each={
-						gameStateData().alivePlayers
-						// 	.filter(
-						// 	(x) => x.playerId !== playerData().playerId
-						// )
-					}
+					each={gameStateData().alivePlayers}
 					fallback={<p>No players to vote for</p>}
 				>
 					{(x) => (
@@ -71,7 +66,8 @@ const Meeting = () => {
 									);
 								}}
 							>
-								Vote for {x.playerId}
+								Vote for {x.playerId}{" "}
+								{x.playerId === playerData().playerId ? "(You)" : ""}
 							</button>
 						</li>
 					)}

@@ -3,14 +3,15 @@ import {
 	createSignal,
 	Match,
 	onMount,
+	Show,
 	Switch,
 	type Component,
 } from "solid-js";
 
 import ReloadPrompt from "./components/ReloadPromp";
-import NFCTest from "./components/NFCTest";
 import Lobby from "./components/Lobby";
 import Game from "./components/Game";
+import Debug from "./components/Debug";
 
 type State = "lobby" | "game";
 type GameState = {
@@ -18,7 +19,7 @@ type GameState = {
 	playersConnected: number[];
 	gamesCompleted: number[];
 	alivePlayers: Array<{ playerId: number }>;
-	imposterPlayerId: number;
+	imposterPlayerId: { playerId: number };
 	isGameStarted: boolean;
 	isVotingActive: boolean;
 	emergencyButtonPressed: boolean;
@@ -44,7 +45,7 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	meetingEndTime: -1,
 	gameOver: "IN_PROGRESS",
 	gamesCompleted: [],
-	imposterPlayerId: -1,
+	imposterPlayerId: { playerId: -1 },
 	isGameStarted: false,
 	isVotingActive: false,
 	killsEnabled: false,
@@ -56,6 +57,7 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 export const [playerData, setPlayerData] = createSignal<PlayerData>({
 	playerId: -99,
 });
+export const [debug, setDebug] = createSignal(false);
 const App: Component = () => {
 	onMount(() => {
 		setInterval(async () => {
@@ -73,22 +75,17 @@ const App: Component = () => {
 		}, 1000);
 	});
 
-	createEffect((prev) => {
+	createEffect(() => {
 		const state = gameStateData();
-		if (!prev && state.isGameStarted && playerData()?.playerId !== undefined) {
+		if (state.isGameStarted && playerData()?.playerId !== undefined) {
 			setGameState("game");
-		} else if (prev && !state.isGameStarted) {
+		} else if (!state.isGameStarted) {
 			setGameState("lobby");
-			setPlayerData({
-				playerId: -1,
-			});
 		}
-
-		return state.isGameStarted;
 	});
 
 	return (
-		<div>
+		<div class='w-screen h-screen relative'>
 			<Switch>
 				<Match when={gameState() === "lobby"}>
 					<Lobby />
@@ -97,32 +94,21 @@ const App: Component = () => {
 					<Game />
 				</Match>
 			</Switch>
+			<Show when={debug()}>
+				<Debug />
+			</Show>
+			<Show when={import.meta.env.MODE === "development"}>
+				<button
+					class='fixed bottom-5 right-5 w-16 h-16 rounded-full bg-teal-500 text-white text-2xl font-bold'
+					onClick={() => {
+						setDebug(!debug());
+					}}
+				>
+					{"</>"}
+				</button>
+			</Show>
 			{/* <NFCTest /> */}
 			<ReloadPrompt />
-			<pre>
-				data:
-				{JSON.stringify(gameStateData(), null, 2)}
-			</pre>
-			<pre>
-				playerdata:
-				{JSON.stringify(playerData(), null, 2)}
-			</pre>
-			<button
-				class='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
-				onClick={async () => {
-					await fetch("https://among-us-irl.mcdle.net/reset", {
-						method: "POST",
-					});
-					setGameState("lobby");
-					setPlayerData({
-						playerId: -1,
-					});
-					localStorage.removeItem("among.gameId");
-					localStorage.removeItem("among.playerId");
-				}}
-			>
-				Reset Game
-			</button>
 		</div>
 	);
 };
