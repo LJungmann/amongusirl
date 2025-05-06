@@ -42,13 +42,6 @@ export class MqttBridgeService implements OnModuleInit {
     this.ttnClient.on('message', (topic, payload) => {
       console.log(`📨 TTN-Message: ${topic}`);
 
-      // TODO: isolate from topic: v3/amongusirl@ttn/devices/wires/up
-      // split by /, second last is device_id e.g. wires, last up is payload_message
-      // then get decoded_payload and parse to perform further action
-      // by f_ports we devide intents of the stations
-      // f_port 1 reserved for completing a station
-      // f_port 2 is a message from the game that is needed (e.g. wire settings)
-
       let parsedTopic = this.parseTopic(topic);
       let game_id = parsedTopic[0];
       let intent = parsedTopic[1];
@@ -68,7 +61,7 @@ export class MqttBridgeService implements OnModuleInit {
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
           if (text.completed) {
-            this.completeGame('wires'); // TODO: write stationId here instead of string??
+            this.completeGame('wires');
           } else if (text.settings !== undefined) {
             let wiring_right = text.settings.split(',');
             let wiring = new Wiring();
@@ -87,14 +80,36 @@ export class MqttBridgeService implements OnModuleInit {
           }
         } else if (game_id === 'simon') {
           console.log('message from simon received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
+          if (text.completed) {
+            this.completeGame('simon');
+          }
         } else if (game_id === 'levers') {
           console.log('message from levers received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
+          if (text.completed) {
+            this.completeGame('levers');
+          }
         } else if (game_id === 'lightsout') {
           console.log('message from lightsout received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
+          if (text.completed) {
+            this.completeGame('lightsout');
+          }
         } else if (game_id === 'safecrack') {
           console.log('message from safecrack received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
+          if (text.completed) {
+            this.completeGame('safecrack');
+          }
         } else if (game_id === 'emergency') {
           console.log('message from emergency received ✅');
+          let text = uplink_message.decoded_payload.text;
+          console.log(JSON.parse(text));
         }
       } catch (error) {
         console.error('❌ Error during json parsing:', payload.toString());

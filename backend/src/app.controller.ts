@@ -2,6 +2,11 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { OpenGameResponse } from './model/game/OpenGameResponse';
 import { GameState } from './model/game/GameState';
+import { ApiBody } from '@nestjs/swagger';
+import { PlayerIdDto } from './model/dtos/PlayerIdDto';
+import { StartStationDto } from './model/dtos/StartStationDto';
+import { StationIdDto } from './model/dtos/StationIdDto';
+import { StationDataDto } from './model/dtos/StationDataDto';
 
 @Controller()
 export class AppController {
@@ -14,12 +19,14 @@ export class AppController {
   }
 
   @Post('open')
-  openGame(@Body() playerId: { playerId: number }): OpenGameResponse {
+  @ApiBody({ type: PlayerIdDto })
+  openGame(@Body() playerId: PlayerIdDto): OpenGameResponse {
     return this.appService.openGame(playerId.playerId);
   }
 
   @Post('join')
-  joinGame(@Body() playerId: { playerId: number }): number {
+  @ApiBody({ type: PlayerIdDto })
+  joinGame(@Body() playerId: PlayerIdDto): number {
     return this.appService.joinGame(playerId.playerId);
   }
 
@@ -34,7 +41,8 @@ export class AppController {
   }
 
   @Post('kill')
-  killPlayer(@Body() data: { playerId: number }): void {
+  @ApiBody({ type: PlayerIdDto })
+  killPlayer(@Body() data: PlayerIdDto): void {
     this.appService.killPlayer(data.playerId);
   }
 
@@ -46,33 +54,39 @@ export class AppController {
 
   // dead body found
   @Post('bodyFound')
-  bodyFound(@Body() data: { playerId: number }): void {
+  @ApiBody({ type: PlayerIdDto })
+  bodyFound(@Body() data: PlayerIdDto): void {
     this.appService.bodyFound(data.playerId);
   }
 
   @Post('registerVoting')
-  registerForVoting(@Body() data: { playerId: number }): boolean {
+  @ApiBody({ type: PlayerIdDto })
+  registerForVoting(@Body() data: PlayerIdDto): boolean {
     console.log('registerForVoting', data.playerId);
     return this.appService.registerForVoting(data.playerId);
   }
 
   @Post('voteFor')
-  voteFor(@Body() data: { playerId: number }): boolean {
+  @ApiBody({ type: PlayerIdDto })
+  voteFor(@Body() data: PlayerIdDto): boolean {
     return this.appService.voteFor(data.playerId);
   }
 
   @Post('startStation')
-  startStation(@Body() data: { stationId: string; playerId: number }): void {
+  @ApiBody({ type: StartStationDto })
+  startStation(@Body() data: StartStationDto): void {
     this.appService.startStation(data.stationId, data.playerId);
   }
 
   @Post('completeStation')
-  completeStation(@Body() data: { stationId: string }): void {
+  @ApiBody({ type: StationIdDto })
+  completeStation(@Body() data: StationIdDto): void {
     this.appService.completeStation(data.stationId);
   }
 
   @Post('setStationData')
-  setStationData(@Body() data: { stationId: string; data: any }): void {
+  @ApiBody({ type: StationDataDto })
+  setStationData(@Body() data: StationDataDto): void {
     this.appService.setStationData(data.stationId, data.data);
   }
 }

@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { OpenGameResponse } from './model/game/OpenGameResponse';
 import { randomUUID } from 'crypto';
-import { GameState } from './model/game/GameState';
+import { GameState, PlayerToStations } from './model/game/GameState';
 
 @Injectable()
 export class AppService {
   private gameState: GameState = new GameState();
   private meetingTimer: NodeJS.Timeout | null = null;
+
+  public allStationIds: string[] = [
+    'wires',
+    'simon',
+    'levers',
+    'lightsout',
+    'safecrack',
+  ];
 
   resetGameState(): void {
     this.gameState.playersConnected = [];
@@ -37,6 +45,13 @@ export class AppService {
   }
 
   joinGame(playerId: number): number {
+    if (
+      this.gameState.playersConnected.findIndex(
+        (thisId) => thisId.playerId === playerId,
+      ) !== -1
+    ) {
+      return -1;
+    }
     this.gameState.playersConnected.push({ playerId: playerId });
     this.gameState.alivePlayers.push({ playerId: playerId });
     return playerId;
@@ -46,6 +61,22 @@ export class AppService {
     this.shuffle(this.gameState.playersConnected);
     this.gameState.imposterPlayerId = this.gameState.playersConnected[0];
     this.gameState.isGameStarted = true;
+    // 3 tasks per player
+    // randomly selected
+    this.gameState.playersConnected.forEach((playerId) => {
+      if (playerId.playerId === this.gameState.imposterPlayerId.playerId) {
+        return;
+      }
+      let playerToStations = new PlayerToStations();
+      playerToStations.playerId = playerId.playerId;
+
+      this.shuffle(this.allStationIds);
+      // take 3 random stations for each player
+      for (let i = 0; i < 3; i++) {
+        playerToStations.stationIds.push(this.allStationIds[i]);
+      }
+      this.gameState.playersNeededStations.push(playerToStations);
+    });
     return this.gameState.imposterPlayerId.playerId;
   }
 
@@ -155,13 +186,26 @@ export class AppService {
       ) !== -1,
       playerId,
     );
+
     if (
       this.gameState.alivePlayers.findIndex((x) => x.playerId === playerId) !==
         -1 &&
       this.gameState.stations.findIndex(
         (station) => station[0] === stationId,
-      ) !== -1
+      ) !== -1 &&
+      this.gameState.playersNeededStations.findIndex((playerToStations) => {
+        if (playerToStations.playerId === playerId) {
+          return (
+            playerToStations.stationIds.findIndex(
+              (playersStationId) => playersStationId === stationId,
+            ) !== -1
+          );
+        }
+      }) !== -1
     ) {
+      console.log(
+        '😜 You tried to log in to a station you are not allowed to! LOL!',
+      );
       return;
     }
     this.gameState.stations.push([stationId, playerId, undefined]);
@@ -176,6 +220,10 @@ export class AppService {
       this.gameState.stations.splice(index, 1);
       this.gameState.gamesCompleted.push(stationId);
       this.checkIfGameOver();
+    } else {
+      console.log(
+        '😜 You tried to complete a station you are not logged in at! LOL!',
+      );
     }
   }
 

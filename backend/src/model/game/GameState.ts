@@ -14,4 +14,15 @@ export class GameState {
   playersRegisteredForVoting: number[] = [];
   votes: [{ playerId: number }, number][] = []; // tuple, player has x votes
   stations: [string, number, any][] = []; // tuple, stationId and playerId and stationData
+  playersNeededStations: PlayerToStations[] = [];
+}
+
+export class PlayerToStations {
+  playerId: number;
+  stationIds: string[];
+
+  constructor() {
+    this.playerId = -1;
+    this.stationIds = [];
+  }
 }
