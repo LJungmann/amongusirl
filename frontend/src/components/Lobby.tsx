@@ -61,13 +61,25 @@ const Lobby = () => {
 								//         record.lang
 								//     })`
 								// );
-								if (textDecoder.decode(record.data).includes("player_id: ")) {
-									await ndef.write("player_id: " + playerData().playerId);
-									if (playerData().playerId == 0) {
-										setState("start-game");
-									} else {
-										setState("registered");
-									}
+								if (
+									state() == "sync-chip" &&
+									textDecoder.decode(record.data).includes("player_id: ")
+								) {
+									ndef
+										.write("player_id: " + playerData().playerId)
+										.then(() => {
+											// log("readLog", "Wrote player ID to NFC tag");
+											// alert("Wrote player ID to NFC tag");
+											if (playerData().playerId == 0) {
+												setState("start-game");
+											} else {
+												setState("registered");
+											}
+										})
+										.catch((error) => {
+											alert("Error writing to NFC tag: " + error);
+											// log("readLog", "Error writing to NFC tag: " + error);
+										});
 								}
 								break;
 							case "url":
