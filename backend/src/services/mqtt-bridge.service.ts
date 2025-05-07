@@ -83,28 +83,32 @@ export class MqttBridgeService implements OnModuleInit {
           console.log('message from simon received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
-          if (text.completed) {
+          let settings = JSON.parse(text);
+          if (settings.completed) {
             this.completeGame('simon');
           }
         } else if (game_id === 'levers') {
           console.log('message from levers received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
-          if (text.completed) {
+          let settings = JSON.parse(text);
+          if (settings.completed) {
             this.completeGame('levers');
           }
         } else if (game_id === 'lightsout') {
           console.log('message from lightsout received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
-          if (text.completed) {
+          let settings = JSON.parse(text);
+          if (settings.completed) {
             this.completeGame('lightsout');
           }
         } else if (game_id === 'safecrack') {
           console.log('message from safecrack received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
-          if (text.completed) {
+          let settings = JSON.parse(text);
+          if (settings.completed) {
             this.completeGame('safecrack');
           }
         } else if (game_id === 'emergency') {
