@@ -21,6 +21,7 @@ import {
 	isPlayerRegisteredForVoting,
 	isValidStation,
 } from "../utils";
+import Dead from "./GameStates/Dead";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -244,24 +245,7 @@ const Game = () => {
 							<BaseStation />
 						</Match>
 						<Match when={playState() === "dead"}>
-							<div class="w-full h-full flex flex-col items-center justify-center px-16">
-								<img
-									src="/Among_Us_Deadmate.webp"
-									alt="Among Us IRL dead icon"
-									class="h-[30vh]"
-								/>
-								<div>
-									<p class="text-4xl">You died!</p>
-									<p>
-										Please stay in your current location until your body is
-										reported or until the next emergency meeting.
-									</p>
-									<br />
-									<p class="font-bold">
-										Don't tell other players who killed you!
-									</p>
-								</div>
-							</div>
+							<Dead />
 						</Match>
 					</Switch>
 				</Show>
@@ -349,7 +333,6 @@ export async function handleReading(event: Event) {
 							alert("You are dead! You cannot call an emergency meeting!");
 							return;
 						}
-						alert("Emergency Meeting called!");
 						await fetch("https://among-us-irl.mcdle.net/emergency", {
 							method: "POST",
 						});

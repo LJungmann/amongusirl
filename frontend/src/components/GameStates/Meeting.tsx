@@ -14,6 +14,14 @@ function getMeetingEndTime() {
 }
 
 const Meeting = () => {
+	onMount(() => {
+		if (navigator.vibrate) {
+			navigator.vibrate(500);
+		} else {
+			alert("Vibration not supported on this device.");
+		}
+	});
+
 	return (
 		<div>
 			<Show
@@ -110,7 +118,7 @@ const Meeting = () => {
 											);
 										}}
 									>
-										Vote for {x.playerId + 1} (You)
+										Vote for {x.playerId + 1}
 										{x.playerId === playerData().playerId ? "(You)" : ""}
 									</button>
 								</li>
