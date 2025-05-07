@@ -6,7 +6,7 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 	onMount(() => {
 		setTimeout(() => {
 			props.setShowRoleInfo(false);
-		}, 5000);
+		}, 1000);
 	});
 	return (
 		<div class="flex flex-col items-center justify-center gap-4 h-full relative">

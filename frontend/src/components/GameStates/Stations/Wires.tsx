@@ -1,25 +1,46 @@
-import { Show } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { gameStateData, playerData } from "../../../App";
 import { getStationData } from "./BaseStation";
 
 const Wires = () => {
+	const [wireData, setWireData] = createSignal<
+		| [[number, number], [number, number], [number, number], [number, number]]
+		| null
+	>(null);
+	onMount(async () => {
+		const response = await fetch("https://among-us-irl.mcdle.net/wires", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		const data: [
+			[number, number],
+			[number, number],
+			[number, number],
+			[number, number],
+		] = await response.json();
+		setWireData(data);
+	});
 	return (
 		<Show
-			when={!getStationData().data}
+			when={!wireData()}
 			fallback={
 				<div>
 					<p>Wire data:</p>
-					<p>Player: {getStationData().player}</p>
-					<pre>{JSON.stringify(getStationData().data, null, 2)}</pre>
+					<pre>{JSON.stringify(wireData(), null, 2)}</pre>
+					{/* <p>Player: {getStationData().player}</p>
+					<pre>{JSON.stringify(getStationData().data, null, 2)}</pre> */}
 				</div>
 			}
 		>
 			<p>TODO station loading or no data...</p>
 			<button
-				class='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-8'
+				class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-8"
 				onClick={async () => {
 					const index = gameStateData().stations.findIndex(
-						(station) => station[1] === playerData()?.playerId
+						(station) => station[1] === playerData()?.playerId,
 					);
 					if (gameStateData().stations.length > 0 && index !== -1) {
 						await fetch("https://among-us-irl.mcdle.net/setStationData", {

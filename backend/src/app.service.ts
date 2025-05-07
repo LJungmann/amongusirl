@@ -24,6 +24,7 @@ export class AppService {
     this.gameState.gamesCompleted = [];
     this.gameState.emergencyButtonPressed = false;
     this.gameState.meetingEndTime = -1;
+    this.gameState.meetingStartTime = -1;
     this.gameState.gameOver = 'IN_PROGRESS';
     this.gameState.isVotingActive = false;
     this.gameState.bodyFound = false;
@@ -136,10 +137,11 @@ export class AppService {
         this.gameState.playersRegisteredForVoting.length ==
         this.gameState.alivePlayers.length
       ) {
-        const defaultTime = '10';
+        const defaultTime = '60';
         this.gameState.meetingEndTime =
           Date.now() +
           parseInt(process.env.MEETING_DURATION_S ?? defaultTime) * 1000;
+        this.gameState.meetingStartTime = Date.now();
         this.meetingTimer = setTimeout(
           () => {
             this.finishVoting();
@@ -212,13 +214,36 @@ export class AppService {
   }
 
   completeStation(stationId: string): void {
+    let mappedStationId = '';
+    switch (stationId) {
+      case 'wires':
+        mappedStationId = 'station_wires';
+        break;
+      case 'simon':
+        mappedStationId = 'station_simon';
+        break;
+      case 'levers':
+        mappedStationId = 'station_levers';
+        break;
+      case 'lightsout':
+        mappedStationId = 'station_lightsout';
+        break;
+      case 'safecrack':
+        mappedStationId = 'station_safecrack';
+        break;
+    }
     const index = this.gameState.stations.findIndex(
-      (station) => station[0] === stationId,
+      (station) => station[0] === mappedStationId,
     );
-    console.log('completeStation', this.gameState.stations, stationId, index);
+    console.log(
+      'completeStation',
+      this.gameState.stations,
+      mappedStationId,
+      index,
+    );
     if (index !== -1) {
       this.gameState.stations.splice(index, 1);
-      this.gameState.gamesCompleted.push(stationId);
+      this.gameState.gamesCompleted.push(mappedStationId);
       this.checkIfGameOver();
     } else {
       console.log(

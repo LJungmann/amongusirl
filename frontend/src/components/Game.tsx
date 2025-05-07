@@ -14,7 +14,12 @@ import Meeting from "./GameStates/Meeting";
 import BaseStation from "./GameStates/Stations/BaseStation";
 import ScannedPlayer from "./GameStates/ScannedPlayer";
 import YourRole from "./GameStates/YourRole";
-import { getTasks, isPlayerAlive, isPlayerRegisteredForVoting } from "../utils";
+import {
+	getTasks,
+	isPlayerAlive,
+	isPlayerImposter,
+	isPlayerRegisteredForVoting,
+} from "../utils";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -89,6 +94,10 @@ const Game = () => {
 		}
 	}
 
+	const [openInstruction, setOpenInstruction] = createSignal<
+		"info" | "role" | null
+	>(null);
+
 	return (
 		<div class="h-full mx-4">
 			<Show
@@ -151,6 +160,84 @@ const Game = () => {
 									</For>
 								</ul>
 							</div>
+							<div class="flex flex-row mt-4 gap-2">
+								<button
+									class="px-4 py-2 text-xl font-bold text-white bg-red-500 rounded-2xl"
+									onClick={() => {
+										if (openInstruction() === "info") {
+											setOpenInstruction(null);
+										} else {
+											setOpenInstruction("info");
+										}
+									}}
+								>
+									?
+								</button>
+								<button
+									class="px-4 py-2 text-xl font-bold text-white bg-red-500 rounded-2xl"
+									onClick={() => {
+										if (openInstruction() === "role") {
+											setOpenInstruction(null);
+										} else {
+											setOpenInstruction("role");
+										}
+									}}
+								>
+									Role
+								</button>
+							</div>
+							<Switch>
+								<Match when={openInstruction() === "info"}>
+									<p>Instructions</p>
+									<div class="flex flex-col gap-2">
+										<p>
+											If you get killed, please stay in the same spot until the
+											next meeting or until someone finds you. Don't tell anyone
+											who killed you!
+										</p>
+										<p>
+											If you find a dead crewmate, please scan their tag to
+											"report" their body. This will start an emergency meeting.
+										</p>
+										<p>
+											Imposters can kill players by clicking the "Kill" button
+											after scanning another player's tag.
+										</p>
+									</div>
+								</Match>
+								<Match when={openInstruction() === "role"}>
+									<p>Role</p>
+									<div class="flex flex-col gap-2">
+										<Show
+											when={isPlayerImposter()}
+											fallback={
+												<>
+													<p>
+														You are a Crewmate. Your tasks is to complete the
+														tasks displayed above. You win with the other
+														Crewmates when you completed all tasks or if the
+														Imposter is voted out.
+													</p>
+													<p>
+														Scan the tags at the task stations and complete the
+														tasks.
+													</p>
+												</>
+											}
+										>
+											<p>
+												You are the Imposter. Your tasks is to discretely kill
+												other players. You win when only one other player is
+												left. Don't get caught!
+											</p>
+											<p>
+												Kill Crewmates by clicking the "Kill" button after
+												scanning another player's tag.
+											</p>
+										</Show>
+									</div>
+								</Match>
+							</Switch>
 						</Match>
 						<Match when={playState() === "station"}>
 							<BaseStation />

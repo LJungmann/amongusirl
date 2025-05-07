@@ -8,6 +8,7 @@ export class GameState {
   isVotingActive: boolean = false;
   emergencyButtonPressed: boolean = false;
   meetingEndTime: number = -1; // timestamp in ms
+  meetingStartTime: number = -1; // timestamp in ms
   gameOver: 'CREWMATES_WIN' | 'IMPOSTER_WIN' | 'IN_PROGRESS' = 'IN_PROGRESS';
   killsEnabled: boolean = true;
   bodyFound: boolean = false;
