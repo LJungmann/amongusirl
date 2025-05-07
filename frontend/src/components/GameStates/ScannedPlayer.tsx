@@ -1,13 +1,11 @@
 import { Accessor, Show } from "solid-js";
 import { lastScannedPlayer } from "../Game";
 import { gameStateData, playerData } from "../../App";
+import { isPlayerAlive, isPlayerImposter } from "../../utils";
 
 const ScannedPlayer = (props: { time: Accessor<number> }) => {
 	function attemptKill() {
-		if (
-			playerData().playerId ===
-			(gameStateData().imposterPlayerId as any).playerId
-		) {
+		if (isPlayerImposter()) {
 			alert("Killing player " + lastScannedPlayer()?.playerId);
 			fetch("https://among-us-irl.mcdle.net/kill", {
 				method: "POST",
@@ -21,7 +19,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 		} else {
 			alert(
 				"You are not the imposter! " +
-					JSON.stringify(gameStateData().imposterPlayerId)
+					JSON.stringify(gameStateData().imposterPlayerId),
 			);
 		}
 	}
@@ -34,15 +32,11 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 				greater than {new Date(props.time()).toLocaleTimeString()})
 			</div>
 			<Show
-				when={
-					gameStateData().alivePlayers.findIndex(
-						(x) => x.playerId === lastScannedPlayer()?.playerId
-					) !== -1
-				}
+				when={isPlayerAlive(lastScannedPlayer()?.playerId)}
 				fallback={
 					<div>
 						<p>Player is dead!</p>
-						<button class='bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32'>
+						<button class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32">
 							Report
 						</button>
 					</div>
@@ -51,7 +45,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 				<div>
 					<p>Player is alive!</p>
 					<button
-						class='bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32'
+						class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32"
 						onClick={attemptKill}
 					>
 						Kill

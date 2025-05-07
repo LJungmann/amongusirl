@@ -13,7 +13,11 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
 			},
-			includeAssets: ["favicon.ico", "apple-touch-icon.png", "maskable-icon-512x512.png"],
+			includeAssets: [
+				"favicon.ico",
+				"apple-touch-icon.png",
+				"maskable-icon-512x512.png",
+			],
 			manifest: {
 				name: "Among Us IRL",
 				short_name: "Among Us IRL",
@@ -41,8 +45,8 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"louisiana-related-showing-territory.trycloudflare.com",
-			"among-us-irl.mcdle.net",
+			"needle-plastics-rocket-quantum.trycloudflare.com",
+			"among-us.mcdle.net",
 		],
 	},
 	build: {
