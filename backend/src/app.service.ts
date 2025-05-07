@@ -32,6 +32,7 @@ export class AppService {
     this.gameState.currentGameId = '';
     this.gameState.votes = [];
     this.gameState.stations = [];
+    this.gameState.playersNeededStations = [];
   }
 
   openGame(playerId: number): OpenGameResponse {
@@ -231,6 +232,8 @@ export class AppService {
       case 'safecrack':
         mappedStationId = 'station_safecrack';
         break;
+      default:
+        mappedStationId = stationId;
     }
     const index = this.gameState.stations.findIndex(
       (station) => station[0] === mappedStationId,
@@ -242,6 +245,20 @@ export class AppService {
       index,
     );
     if (index !== -1) {
+      // remove station from playersNeededStations
+      const playerIndex = this.gameState.playersNeededStations.findIndex(
+        (playerToStations) => {
+          return (
+            playerToStations.playerId === this.gameState.stations[index][1]
+          );
+        },
+      );
+      this.gameState.playersNeededStations[playerIndex].stationIds.splice(
+        this.gameState.playersNeededStations[index].stationIds.indexOf(
+          mappedStationId,
+        ),
+        1,
+      );
       this.gameState.stations.splice(index, 1);
       this.gameState.gamesCompleted.push(mappedStationId);
       this.checkIfGameOver();

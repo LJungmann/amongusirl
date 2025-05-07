@@ -19,6 +19,7 @@ import {
 	isPlayerAlive,
 	isPlayerImposter,
 	isPlayerRegisteredForVoting,
+	isValidStation,
 } from "../utils";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
@@ -283,6 +284,10 @@ export async function handleReading(event: Event) {
 				const textDecoder = new TextDecoder(record.encoding);
 				const data = textDecoder.decode(record.data);
 				if (data.startsWith("station_")) {
+					if (!isValidStation(data)) {
+						alert("Invalid station! You do not have a task here.");
+						return;
+					}
 					await fetch("https://among-us-irl.mcdle.net/startStation", {
 						method: "POST",
 						body: JSON.stringify({
