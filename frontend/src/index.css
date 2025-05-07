@@ -40,6 +40,14 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: "VCR_OSD_MONO";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/fonts/VCR_OSD_MONO.ttf") format("truetype");
+	font-display: swap;
+}
+
 html,
 body {
 	overscroll-behavior-y: contain;
@@ -50,8 +58,7 @@ body {
 
 body {
 	min-height: calc(100% + env(safe-area-inset-top));
-	padding: env(safe-area-inset-top) env(safe-area-inset-right)
-		env(safe-area-inset-bottom) env(safe-area-inset-left);
+	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /*
@@ -87,4 +94,37 @@ background glow red
 	filter: blur(40px);
 	pointer-events: none;
 	height: 30vh;
+}
+
+
+.progressbar[value] {
+	--color:
+		/* the progress color */
+		linear-gradient(#fff8, #fff0),
+		repeating-linear-gradient(135deg, #0001 0 10px, #0000 0 20px),
+		#31f74f;
+	--background: lightgrey;
+	/* the background color */
+
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: none;
+	border-radius: 10px;
+	background: var(--background);
+}
+
+.progressbar[value]::-webkit-progress-bar {
+	border-radius: 10px;
+	background: var(--background);
+}
+
+.progressbar[value]::-webkit-progress-value {
+	border-radius: 10px;
+	background: var(--color);
+}
+
+.progressbar[value]::-moz-progress-bar {
+	border-radius: 10px;
+	background: var(--color);
 }

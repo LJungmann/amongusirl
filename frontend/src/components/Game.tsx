@@ -72,8 +72,25 @@ const Game = () => {
 		ndef.removeEventListener("reading", handleReading);
 	});
 
+	function mapTaskNames(task: string) {
+		switch (task) {
+			case "station_wires":
+				return "Wires";
+			case "station_simon":
+				return "Simon Says";
+			case "station_lightsout":
+				return "Lights Out";
+			case "station_levers":
+				return "Levers";
+			case "station_safecrack":
+				return "Safe Cracking";
+			default:
+				return task;
+		}
+	}
+
 	return (
-		<div class="h-full">
+		<div class="h-full mx-4">
 			<Show
 				when={gameStateData().gameOver === "IN_PROGRESS"}
 				fallback={
@@ -106,15 +123,18 @@ const Game = () => {
 					}
 				>
 					{/* main game display */}
-					<p>
-						Stations completed:
+					<div class="relative">
+						<span class="absolute top-1/2 left-1/2 text-2xl font-bold -translate-1/2">
+							Tasks Complete
+						</span>
 						<progress
 							max={gameStateData().playersConnected.length * 3}
 							value={gameStateData().gamesCompleted.length}
+							class="w-full h-12 progressbar"
 						/>{" "}
-						{gameStateData().gamesCompleted.length}/
-						{gameStateData().playersConnected.length * 3}
-					</p>
+						{/* {gameStateData().gamesCompleted.length}/
+						{gameStateData().playersConnected.length * 3} */}
+					</div>
 					<Show when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
 						<ScannedPlayer time={time} />
 					</Show>
@@ -123,10 +143,12 @@ const Game = () => {
 							<Meeting />
 						</Match>
 						<Match when={playState() === "game"}>
-							<div>
-								<p>Tasks:</p>
-								<ul>
-									<For each={getTasks()}>{(task) => <li>{task} </li>}</For>
+							<div class="bg-gray-200 p-4 rounded-lg">
+								<p class="text-4xl">Tasks:</p>
+								<ul class="text-2xl list-disc ml-8">
+									<For each={getTasks()}>
+										{(task) => <li>{mapTaskNames(task)} </li>}
+									</For>
 								</ul>
 							</div>
 						</Match>
@@ -134,7 +156,24 @@ const Game = () => {
 							<BaseStation />
 						</Match>
 						<Match when={playState() === "dead"}>
-							<p>You have been killed!</p>
+							<div class="w-full h-full flex flex-col items-center justify-center px-16">
+								<img
+									src="/Among_Us_Deadmate.webp"
+									alt="Among Us IRL dead icon"
+									class="h-[30vh]"
+								/>
+								<div>
+									<p class="text-4xl">You died!</p>
+									<p>
+										Please stay in your current location until your body is
+										reported or until the next emergency meeting.
+									</p>
+									<br />
+									<p class="font-bold">
+										Don't tell other players who killed you!
+									</p>
+								</div>
+							</div>
 						</Match>
 					</Switch>
 				</Show>

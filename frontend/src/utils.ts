@@ -43,7 +43,7 @@ export function isPlayerRegisteredForVoting(
  */
 export function getTasks(playerId: number = playerData().playerId) {
 	const player = gameStateData().playersNeededStations.find(
-		(x) => x.playerId === playerId + 1,
+		(x) => x.playerId === playerId,
 	);
 	if (player) {
 		return player.stationIds;

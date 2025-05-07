@@ -21,8 +21,13 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 								class="h-[30vh] relative"
 							/>
 						</div>
-						<p class="text-8xl text-cyan-500 font-bold">Crewmate</p>
-						<p>Game Starting...</p>
+						<p
+							class="text-7xl text-cyan-500 font-bold"
+							style={{ "font-family": "VCR_OSD_MONO" }}
+						>
+							Crewmate
+						</p>
+						<p class="text-2xl mt-8">Game Starting...</p>
 					</>
 				}
 			>
@@ -33,8 +38,13 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 						class="h-[30vh] relative"
 					/>
 				</div>
-				<p class="text-8xl text-red-500 font-bold">Imposter</p>
-				<p>Game Starting...</p>
+				<p
+					class="text-7xl text-red-500 font-bold"
+					style={{ "font-family": "VCR_OSD_MONO" }}
+				>
+					Imposter
+				</p>
+				<p class="text-2xl mt-8">Game Starting...</p>
 			</Show>
 		</div>
 	);

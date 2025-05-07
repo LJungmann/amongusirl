@@ -64,9 +64,9 @@ export class AppService {
     // 3 tasks per player
     // randomly selected
     this.gameState.playersConnected.forEach((playerId) => {
-      if (playerId.playerId === this.gameState.imposterPlayerId.playerId) {
-        return;
-      }
+      // if (playerId.playerId === this.gameState.imposterPlayerId.playerId) {
+      //   return;
+      // }
       let playerToStations = new PlayerToStations();
       playerToStations.playerId = playerId.playerId;
 
