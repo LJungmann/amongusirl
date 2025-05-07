@@ -16,6 +16,7 @@ export class GameState {
   votes: [{ playerId: number }, number][] = []; // tuple, player has x votes
   stations: [string, number, any][] = []; // tuple, stationId and playerId and stationData
   playersNeededStations: PlayerToStations[] = [];
+  lastMeetingResult: string = ''; // result of the last meeting
 }
 
 export class PlayerToStations {

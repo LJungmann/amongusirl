@@ -6,7 +6,7 @@ import { isPlayerAlive, isPlayerImposter } from "../../utils";
 const ScannedPlayer = (props: { time: Accessor<number> }) => {
 	function attemptKill() {
 		if (isPlayerImposter()) {
-			alert("Killing player " + lastScannedPlayer()?.playerId);
+			// alert("Killing player " + lastScannedPlayer()?.playerId);
 			fetch("https://among-us-irl.mcdle.net/kill", {
 				method: "POST",
 				body: JSON.stringify({

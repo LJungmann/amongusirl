@@ -12,11 +12,12 @@ import ReloadPrompt from "./components/ReloadPromp";
 import Lobby from "./components/Lobby";
 import Game from "./components/Game";
 import Debug from "./components/Debug";
+import MeetingResult from "./components/GameStates/MeetingResult";
 
 type State = "lobby" | "game";
 type GameState = {
 	currentGameId: string;
-	playersConnected: number[];
+	playersConnected: Array<{ playerId: number }>;
 	gamesCompleted: number[];
 	alivePlayers: Array<{ playerId: number }>;
 	imposterPlayerId: { playerId: number };
@@ -32,6 +33,7 @@ type GameState = {
 	votes: [number, number][]; // tuple, player has x votes
 	stations: [string, number, any][];
 	playersNeededStations: PlayerToStations[];
+	lastMeetingResult: string; // result of the last meeting
 };
 
 type PlayerToStations = {
@@ -62,6 +64,7 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	votes: [],
 	stations: [],
 	playersNeededStations: [],
+	lastMeetingResult: "",
 });
 export const [playerData, setPlayerData] = createSignal<PlayerData>({
 	playerId: -99,
@@ -95,12 +98,30 @@ const App: Component = () => {
 
 	return (
 		<div class="w-screen h-screen relative overflow-hidden flex flex-col items-stretch">
-			<header class="flex">
-				<img class="ml-2" width={35} src="/Logo.svg" alt="Among Us IRL icon" />
-				<p class="text-3xl m-2" style={{ "font-family": "Amatic SC" }}>
-					<b>Among Us IRL</b>
-				</p>
+			<header class="flex flex-row items-center justify-between bg-gray-200 p-4 shadow-md">
+				<span class="flex flex-row items-center">
+					<img
+						class="ml-2"
+						width={35}
+						src="/Logo.svg"
+						alt="Among Us IRL icon"
+					/>
+					<p class="text-3xl ml-2" style={{ "font-family": "Amatic SC" }}>
+						<b>Among Us IRL</b>
+					</p>
+				</span>
+				<Show when={playerData().playerId >= 0}>
+					<span class="flex flex-row items-center gap-2 text-2xl">
+						Player {playerData().playerId + 1}
+						<img
+							src={"/" + playerData().playerId + "_alive.webp"}
+							alt="Player icon"
+							class="w-8 h-fit"
+						/>
+					</span>
+				</Show>
 			</header>
+			{/* <MeetingResult /> */}
 			<Switch>
 				<Match when={gameState() === "lobby"}>
 					<Lobby />

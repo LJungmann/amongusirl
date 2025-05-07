@@ -1,4 +1,4 @@
-import { For, onMount, Show } from "solid-js";
+import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { gameStateData, playerData } from "../../App";
 import { isPlayerAlive, isPlayerRegisteredForVoting } from "../../utils";
 
@@ -13,6 +13,8 @@ function getMeetingEndTime() {
 	return Math.floor(seconds) + "s";
 }
 
+export const [showMeetingResult, setShowMeetingResult] = createSignal(false);
+
 const Meeting = () => {
 	onMount(() => {
 		if (navigator.vibrate) {
@@ -21,14 +23,34 @@ const Meeting = () => {
 			alert("Vibration not supported on this device.");
 		}
 	});
+	onCleanup(() => {
+		setShowMeetingResult(true);
+		setTimeout(() => {
+			setShowMeetingResult(false);
+		}, 4000);
+	});
+
+	const [hasVoted, setHasVoted] = createSignal(false);
 
 	return (
 		<div>
 			<Show
 				when={isPlayerRegisteredForVoting()}
 				fallback={
-					<div class="h-full items-center justify-center flex">
-						<p class="text-red-800">You are not yet registered for voting!</p>
+					<div class="flex flex-col gap-2 mx-4 h-full items-center justify-center text-center">
+						<h2
+							class="text-red-800 text-5xl text-center pt-4"
+							style={{ "font-family": "VCR_OSD_MONO" }}
+						>
+							Emergency Meeting!
+						</h2>
+						<p>Scan the game tag to log into the meeting.</p>
+						<br />
+						<br />
+						<p class="text-3xl">
+							Please stop ongoing tasks and go to the base station with the
+							emergency button to meet up for the meeting.
+						</p>
 					</div>
 				}
 			>
@@ -40,9 +62,9 @@ const Meeting = () => {
 						Emergency Meeting!
 					</h2>
 					<div class="relative">
-						<span class="absolute top-1/2 left-1/2 text-xl font-bold -translate-1/2">
+						<div class="absolute top-1/2 left-1/2 text-xl font-bold -translate-1/2 w-full text-center">
 							Meeting over in: {getMeetingEndTime()}
-						</span>
+						</div>
 						<progress
 							//meeting start time causes issues because it is already too long ago when players have registered for voting
 							max={
@@ -67,19 +89,19 @@ const Meeting = () => {
 					</Show>
 					<ul class="flex flex-row flex-wrap gap-2 py-4 items-center justify-center rounded bg-gray-200">
 						<For
-							// each={gameStateData().alivePlayers}
-							each={[
-								{ playerId: 0 },
-								{ playerId: 1 },
-								{ playerId: 2 },
-								{ playerId: 3 },
-								{ playerId: 4 },
-								{ playerId: 5 },
-								{ playerId: 6 },
-								{ playerId: 7 },
-								{ playerId: 8 },
-								{ playerId: 9 },
-							]}
+							each={gameStateData().playersConnected}
+							// each={[
+							// 	{ playerId: 0 },
+							// 	{ playerId: 1 },
+							// 	{ playerId: 2 },
+							// 	{ playerId: 3 },
+							// 	{ playerId: 4 },
+							// 	{ playerId: 5 },
+							// 	{ playerId: 6 },
+							// 	{ playerId: 7 },
+							// 	{ playerId: 8 },
+							// 	{ playerId: 9 },
+							// ]}
 							fallback={<p>No players to vote for</p>}
 						>
 							{(x) => (
@@ -98,17 +120,19 @@ const Meeting = () => {
 
 									<button
 										class="text-white font-bold w-fit"
+										disabled={hasVoted()}
 										onClick={async () => {
 											if (!isPlayerAlive()) {
 												alert("You are dead! You cannot vote!");
 												return;
 											}
-											alert(
-												"Voted for " +
-													x.playerId +
-													" successfully! as " +
-													typeof x.playerId,
-											);
+											setHasVoted(true);
+											// alert(
+											// 	"Voted for " +
+											// 		x.playerId +
+											// 		" successfully! as " +
+											// 		typeof x.playerId,
+											// );
 											const response = await fetch(
 												"https://among-us-irl.mcdle.net/voteFor",
 												{
@@ -122,15 +146,16 @@ const Meeting = () => {
 													},
 												},
 											);
-											alert(
-												(await response.text()) === "false"
-													? "Failed"
-													: "Success",
-											);
+											if ((await response.text()) === "false") {
+												alert(
+													"Something went wrong with your vote, try again!",
+												);
+												setHasVoted(false);
+											}
 										}}
 									>
 										Vote for {x.playerId + 1}
-										{x.playerId === playerData().playerId ? "(You)" : ""}
+										{x.playerId === playerData().playerId ? " (You)" : ""}
 									</button>
 								</li>
 							)}
@@ -138,7 +163,9 @@ const Meeting = () => {
 						<li class="w-[45%] bg-red-500 hover:bg-red-700 flex flex-row py-4 gap-2 rounded justify-center">
 							<button
 								class="text-white font-bold w-fit"
+								disabled={hasVoted()}
 								onClick={async () => {
+									setHasVoted(true);
 									const response = await fetch(
 										"https://among-us-irl.mcdle.net/voteFor",
 										{
@@ -152,9 +179,10 @@ const Meeting = () => {
 											},
 										},
 									);
-									alert(
-										(await response.text()) === "false" ? "Failed" : "Success",
-									);
+									if ((await response.text()) === "false") {
+										alert("Something went wrong with your vote, try again!");
+										setHasVoted(false);
+									}
 								}}
 							>
 								Skip

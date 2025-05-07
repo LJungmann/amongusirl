@@ -33,6 +33,7 @@ export class AppService {
     this.gameState.votes = [];
     this.gameState.stations = [];
     this.gameState.playersNeededStations = [];
+    this.gameState.lastMeetingResult = '';
   }
 
   openGame(playerId: number): OpenGameResponse {
@@ -97,6 +98,7 @@ export class AppService {
   emergencyButton(): void {
     this.gameState.emergencyButtonPressed = true;
     this.gameState.killsEnabled = false;
+    this.gameState.votes.push([{ playerId: -1 }, 0]);
   }
 
   bodyFound(playerId: number): void {
@@ -304,6 +306,10 @@ export class AppService {
       // if no one voted, no one is killed
       if (mostVotedPlayer[1] === 0) {
         console.log('no votes, no one killed');
+        this.gameState.lastMeetingResult = 'no_votes';
+      } else if (mostVotedPlayer[0].playerId === -1) {
+        console.log('skipped voting by majority');
+        this.gameState.lastMeetingResult = 'skipped';
       } else {
         console.log('mostVotedPlayer', mostVotedPlayer);
         // check if other players have the same amount of votes
@@ -314,11 +320,14 @@ export class AppService {
         // if more than one player has the same amount of votes, no one is killed
         if (mostVotedPlayers.length > 1) {
           console.log('no one killed');
+          this.gameState.lastMeetingResult =
+            'tie_' + mostVotedPlayers.map((x) => x[0].playerId).join('_');
         } else {
           // kill the player with the most votes
           const playerToKill = mostVotedPlayer[0].playerId;
           console.log('killing player', playerToKill);
           this.killPlayer(playerToKill);
+          this.gameState.lastMeetingResult = 'killed_' + playerToKill;
         }
       }
     }
