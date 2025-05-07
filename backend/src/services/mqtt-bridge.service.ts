@@ -60,10 +60,11 @@ export class MqttBridgeService implements OnModuleInit {
           console.log('message from wires received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
-          if (text.completed) {
+          let settings = JSON.parse(text);
+          if (settings.completed) {
             this.completeGame('wires');
-          } else if (text.settings !== undefined) {
-            let wiring_right = text.settings.split(',');
+          } else if (settings.settings !== undefined) {
+            let wiring_right = settings.settings.split(',');
             let wiring = new Wiring();
             wiring.wiring = [
               [0, wiring_right[0]],
@@ -113,7 +114,7 @@ export class MqttBridgeService implements OnModuleInit {
           this.appService.emergencyButton();
         }
       } catch (error) {
-        console.error('❌ Error during json parsing:', payload.toString());
+        console.error('❌ Error during json parsing:', error);
       }
       this.forwardToLocalBroker(topic, payload);
     });
