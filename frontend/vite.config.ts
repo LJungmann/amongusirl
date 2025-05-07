@@ -45,7 +45,7 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"needle-plastics-rocket-quantum.trycloudflare.com",
+			"compromise-enrolled-father-leone.trycloudflare.com",
 			"among-us.mcdle.net",
 		],
 	},
