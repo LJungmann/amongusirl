@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { gameStateData, playerData } from "../../App";
+import { isPlayerAlive, isPlayerRegisteredForVoting } from "../../utils";
 
 function getMeetingEndTime() {
 	const seconds =
@@ -16,21 +17,14 @@ const Meeting = () => {
 	return (
 		<div>
 			<Show
-				when={
-					gameStateData().playersRegisteredForVoting.findIndex((x) => {
-						if (x === playerData().playerId) {
-							return true;
-						}
-						return false;
-					}) !== -1
-				}
+				when={isPlayerRegisteredForVoting()}
 				fallback={
-					<p class='text-red-800'>You are not yet registered for voting!</p>
+					<p class="text-red-800">You are not yet registered for voting!</p>
 				}
 			>
-				<p class='text-green-800'>You are registered for voting!</p>
+				<p class="text-green-800">You are registered for voting!</p>
 			</Show>
-			<p class='text-red-800'>Emergency Meeting!</p>
+			<p class="text-red-800">Emergency Meeting!</p>
 			<p>Meeting over in: {getMeetingEndTime()}</p>
 			<ul>
 				<For
@@ -40,13 +34,9 @@ const Meeting = () => {
 					{(x) => (
 						<li>
 							<button
-								class='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+								class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
 								onClick={async () => {
-									if (
-										gameStateData().alivePlayers.findIndex(
-											(y) => y.playerId === playerData().playerId
-										) === -1
-									) {
+									if (!isPlayerAlive()) {
 										alert("You are dead! You cannot vote!");
 										return;
 									}
@@ -54,7 +44,7 @@ const Meeting = () => {
 										"Voted for " +
 											x.playerId +
 											" successfully! as " +
-											typeof x.playerId
+											typeof x.playerId,
 									);
 									const response = await fetch(
 										"https://among-us-irl.mcdle.net/voteFor",
@@ -67,10 +57,10 @@ const Meeting = () => {
 											headers: {
 												"Content-Type": "application/json",
 											},
-										}
+										},
 									);
 									alert(
-										(await response.text()) === "false" ? "Failed" : "Success"
+										(await response.text()) === "false" ? "Failed" : "Success",
 									);
 								}}
 							>

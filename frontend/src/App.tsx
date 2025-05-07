@@ -30,6 +30,12 @@ type GameState = {
 	playersRegisteredForVoting: number[];
 	votes: [number, number][]; // tuple, player has x votes
 	stations: [string, number, any][];
+	playersNeededStations: PlayerToStations[];
+};
+
+type PlayerToStations = {
+	playerId: number;
+	stationIds: string[];
 };
 
 type PlayerData = {
@@ -53,6 +59,7 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	playersRegisteredForVoting: [],
 	votes: [],
 	stations: [],
+	playersNeededStations: [],
 });
 export const [playerData, setPlayerData] = createSignal<PlayerData>({
 	playerId: -99,
@@ -85,13 +92,13 @@ const App: Component = () => {
 	});
 
 	return (
-		<div class="w-screen h-screen relative">
-			<div class="flex">
+		<div class="w-screen h-screen relative overflow-hidden flex flex-col items-stretch">
+			<header class="flex">
 				<img class="ml-2" width={35} src="/Logo.svg" alt="Among Us IRL icon" />
 				<p class="text-3xl m-2" style={{ "font-family": "Amatic SC" }}>
 					<b>Among Us IRL</b>
 				</p>
-			</div>
+			</header>
 			<Switch>
 				<Match when={gameState() === "lobby"}>
 					<Lobby />

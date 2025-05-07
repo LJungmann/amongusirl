@@ -14,6 +14,7 @@ import Meeting from "./GameStates/Meeting";
 import BaseStation from "./GameStates/Stations/BaseStation";
 import ScannedPlayer from "./GameStates/ScannedPlayer";
 import YourRole from "./GameStates/YourRole";
+import { getTasks, isPlayerAlive, isPlayerRegisteredForVoting } from "../utils";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -35,11 +36,7 @@ const Game = () => {
 				state.stations.findIndex((x) => x[1] === playerData()?.playerId) !== -1
 			) {
 				setPlayState("station");
-			} else if (
-				gameStateData().alivePlayers.findIndex(
-					(p) => p.playerId === playerData()?.playerId,
-				) === -1
-			) {
+			} else if (!isPlayerAlive()) {
 				setPlayState("dead");
 			} else {
 				setPlayState("game");
@@ -76,7 +73,7 @@ const Game = () => {
 	});
 
 	return (
-		<div>
+		<div class="h-full">
 			<Show
 				when={gameStateData().gameOver === "IN_PROGRESS"}
 				fallback={
@@ -109,7 +106,6 @@ const Game = () => {
 					}
 				>
 					{/* main game display */}
-					<h1>Game</h1>
 					<p>
 						Stations completed:
 						<progress
@@ -127,7 +123,12 @@ const Game = () => {
 							<Meeting />
 						</Match>
 						<Match when={playState() === "game"}>
-							<p>In game!</p>
+							<div>
+								<p>Tasks:</p>
+								<ul>
+									<For each={getTasks()}>{(task) => <li>{task} </li>}</For>
+								</ul>
+							</div>
 						</Match>
 						<Match when={playState() === "station"}>
 							<BaseStation />
@@ -171,11 +172,7 @@ export async function handleReading(event: Event) {
 					const playerId = parseInt(data.split("player_id: ")[1]);
 					if (playerData().playerId !== playerId) {
 						// Other player ID
-						if (
-							gameStateData().alivePlayers.findIndex(
-								(x) => x.playerId === playerId,
-							) === -1
-						) {
+						if (!isPlayerAlive(playerId)) {
 							alert("Player " + playerId + " is dead! Reporting...");
 							// Report dead players
 							await fetch("https://among-us-irl.mcdle.net/bodyFound", {
@@ -201,14 +198,7 @@ export async function handleReading(event: Event) {
 			case "url":
 				if (decoder.decode(record.data) === import.meta.env.VITE_APP_URL) {
 					if (gameStateData().emergencyButtonPressed) {
-						if (
-							gameStateData().playersRegisteredForVoting.findIndex((x) => {
-								if (x === playerData().playerId) {
-									return true;
-								}
-								return false;
-							}) === -1
-						) {
+						if (!isPlayerRegisteredForVoting()) {
 							const response = await fetch(
 								"https://among-us-irl.mcdle.net/registerVoting",
 								{
@@ -224,11 +214,7 @@ export async function handleReading(event: Event) {
 							alert(await response.text());
 						}
 					} else {
-						if (
-							gameStateData().alivePlayers.findIndex(
-								(x) => x.playerId === playerData().playerId,
-							) === -1
-						) {
+						if (!isPlayerAlive()) {
 							alert("You are dead! You cannot call an emergency meeting!");
 							return;
 						}
