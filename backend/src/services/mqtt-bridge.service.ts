@@ -110,6 +110,7 @@ export class MqttBridgeService implements OnModuleInit {
           console.log('message from emergency received ✅');
           let text = uplink_message.decoded_payload.text;
           console.log(JSON.parse(text));
+          this.appService.emergencyButton();
         }
       } catch (error) {
         console.error('❌ Error during json parsing:', payload.toString());
@@ -131,7 +132,7 @@ export class MqttBridgeService implements OnModuleInit {
   }
 
   private completeGame(game_id: string) {
-    this.appService.completeStation(game_id /*TODO: game_id to stationId*/);
+    this.appService.completeStation(game_id);
   }
 
   private connectToLocalBroker() {
