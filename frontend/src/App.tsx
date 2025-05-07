@@ -1,4 +1,12 @@
-import { createEffect, createSignal, Match, onMount, Show, Switch, type Component } from "solid-js";
+import {
+	createEffect,
+	createSignal,
+	Match,
+	onMount,
+	Show,
+	Switch,
+	type Component,
+} from "solid-js";
 
 import ReloadPrompt from "./components/ReloadPromp";
 import Lobby from "./components/Lobby";
@@ -80,7 +88,7 @@ const App: Component = () => {
 		<div class="w-screen h-screen relative">
 			<div class="flex">
 				<img class="ml-2" width={35} src="/Logo.svg" alt="Among Us IRL icon" />
-				<p class="text-3xl m-2">
+				<p class="text-3xl m-2" style={{ "font-family": "Amatic SC" }}>
 					<b>Among Us IRL</b>
 				</p>
 			</div>

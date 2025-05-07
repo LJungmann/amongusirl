@@ -16,16 +16,40 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: "Excalifont";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/fonts/Excalifont-Regular.woff2") format("woff2");
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "ShadowsIntoLight";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/fonts/ShadowsIntoLight-Regular.ttf") format("truetype");
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "ShadowsIntoLightTwo";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/fonts/ShadowsIntoLightTwo-Regular.ttf") format("truetype");
+	font-display: swap;
+}
+
 html,
 body {
 	overscroll-behavior-y: contain;
-	font-family: "Amatic SC", sans-serif;
+	font-family: "ShadowsIntoLightTwo", sans-serif;
 	font-weight: 400;
 	font-style: normal;
 }
 
 body {
 	min-height: calc(100% + env(safe-area-inset-top));
-	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-		env(safe-area-inset-left);
+	padding: env(safe-area-inset-top) env(safe-area-inset-right)
+		env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
