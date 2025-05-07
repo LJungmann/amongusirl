@@ -1,4 +1,5 @@
 import { onMount } from "solid-js";
+import { playerData } from "../../App";
 
 const Dead = () => {
 	onMount(() => {
@@ -11,7 +12,8 @@ const Dead = () => {
 	return (
 		<div class="w-full h-full flex flex-col items-center justify-center px-16">
 			<img
-				src="/Among_Us_Deadmate.webp"
+				src={"/" + playerData().playerId + "_dead.webp"}
+				// src="/Among_Us_Deadmate.webp"
 				alt="Among Us IRL dead icon"
 				class="h-[30vh]"
 			/>

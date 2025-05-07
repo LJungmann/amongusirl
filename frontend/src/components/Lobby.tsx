@@ -190,7 +190,8 @@ const Lobby = () => {
 					</p>
 					<p class="text-4xl">Players in Lobby</p>
 					<img
-						src="/Among_Us_Crewmate.webp"
+						// src="/Among_Us_Crewmate.webp"
+						src={"/" + playerData().playerId + "_alive.webp"}
 						alt="Among Us IRL icon"
 						class="h-[30vh]"
 					/>
@@ -238,7 +239,8 @@ const Lobby = () => {
 					</p>
 					<p class="text-4xl">Players in Lobby</p>
 					<img
-						src="/Among_Us_Crewmate.webp"
+						// src="/Among_Us_Crewmate.webp"
+						src={"/" + playerData().playerId + "_alive.webp"}
 						alt="Among Us IRL icon"
 						class="h-[30vh]"
 					/>

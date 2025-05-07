@@ -45,7 +45,7 @@ export default defineConfig({
 	server: {
 		port: 3001,
 		allowedHosts: [
-			"compromise-enrolled-father-leone.trycloudflare.com",
+			"chick-jon-inside-ideal.trycloudflare.com",
 			"among-us.mcdle.net",
 		],
 	},

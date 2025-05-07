@@ -84,7 +84,18 @@ const Meeting = () => {
 						>
 							{(x) => (
 								<li class="w-[45%] bg-red-500 hover:bg-red-700 flex flex-row py-4 gap-2 rounded justify-center">
-									<img src="/Among_Us_Crewmate.webp" class="w-8 h-fit" />
+									<img
+										// src="/Among_Us_Crewmate.webp"
+										src={
+											"/" +
+											x.playerId +
+											"_" +
+											(isPlayerAlive(x.playerId) ? "alive" : "dead") +
+											".webp"
+										} // TODO change to make dead players not clickable
+										class="w-8 h-fit"
+									/>
+
 									<button
 										class="text-white font-bold w-fit"
 										onClick={async () => {

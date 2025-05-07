@@ -16,7 +16,7 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 					<>
 						<div class="relative crewmate">
 							<img
-								src="/Among_Us_Crewmate.webp"
+								src={"/" + playerData().playerId + "_alive.webp"}
 								alt="Among Us IRL icon"
 								class="h-[30vh] relative"
 							/>
@@ -33,7 +33,7 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 			>
 				<div class="relative imposter">
 					<img
-						src="/Among_Us_Crewmate.webp"
+						src={"/" + playerData().playerId + "_alive.webp"}
 						alt="Among Us IRL icon"
 						class="h-[30vh] relative"
 					/>
