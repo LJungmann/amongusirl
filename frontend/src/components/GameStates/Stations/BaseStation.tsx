@@ -6,7 +6,7 @@ import Wires from "./Wires";
 export function getStationData() {
 	try {
 		const index = gameStateData().stations.findIndex(
-			(x) => x[1] == playerData().playerId
+			(x) => x[1] == playerData().playerId,
 		);
 		return {
 			name: gameStateData().stations[index][0],
@@ -25,19 +25,44 @@ export function getStationData() {
 const BaseStation = () => {
 	return (
 		<div>
-			<p>In station: {getStationData().name}</p>
-			<div class='flex flex-col gap-4'>
+			<div class="flex flex-col gap-4">
 				<Switch>
 					<Match when={getStationData().name == "station_wires"}>
 						<Wires />
 					</Match>
+					<Match when={getStationData().name == "station_simon"}>
+						<h2 class="text-4xl">📱 Simon Says 📱</h2>
+						<p>Press the buttons to match shown sequence.</p>
+					</Match>
+					<Match when={getStationData().name == "station_levers"}>
+						<h2 class="text-4xl">🎚️ Switch Levers 🎚️</h2>
+						<p>Switch the levers correctly to complete the task.</p>
+						<br />
+						<p>💡 LEDs indicate how many levers are already correct.</p>
+					</Match>
+					<Match when={getStationData().name == "station_lightsout"}>
+						<h2 class="text-4xl">💡 Lights Out 💡</h2>
+						<p>Turn off all the lights to complete the task!</p>
+					</Match>
+					<Match when={getStationData().name == "station_safecrack"}>
+						<div class="text-center">
+							<h2 class="text-4xl">🔒 Safe Cracking 🔒</h2>
+							<p>Guess the correct safe pin by rotating the dial.</p>
+							<br />
+							<p>
+								🔊 Buzzer noise is higher the closer you are to the correct
+								digit.
+							</p>
+							<p>💡 LEDs indicate how many digits are already correct.</p>
+						</div>
+					</Match>
 				</Switch>
 
 				<button
-					class='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+					class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
 					onClick={async () => {
 						const index = gameStateData().stations.findIndex(
-							(station) => station[1] === playerData()?.playerId
+							(station) => station[1] === playerData()?.playerId,
 						);
 						if (gameStateData().stations.length > 0 && index !== -1) {
 							await fetch("https://among-us-irl.mcdle.net/completeStation", {
