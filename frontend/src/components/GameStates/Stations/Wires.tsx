@@ -3,10 +3,14 @@ import { gameStateData, playerData } from "../../../App";
 import { getStationData } from "./BaseStation";
 
 const Wires = () => {
-	const [wireData, setWireData] = createSignal<
-		| [[number, number], [number, number], [number, number], [number, number]]
-		| null
-	>(null);
+	const [wireData, setWireData] = createSignal<{
+		wiring: [
+			[number, string],
+			[number, string],
+			[number, string],
+			[number, string],
+		];
+	} | null>(null);
 	onMount(async () => {
 		const response = await fetch("https://among-us-irl.mcdle.net/wires", {
 			method: "GET",
@@ -15,12 +19,14 @@ const Wires = () => {
 			},
 		});
 
-		const data: [
-			[number, number],
-			[number, number],
-			[number, number],
-			[number, number],
-		] = await response.json();
+		const data: {
+			wiring: [
+				[number, string],
+				[number, string],
+				[number, string],
+				[number, string],
+			];
+		} = await response.json();
 		setWireData(data);
 	});
 	return (
@@ -28,53 +34,83 @@ const Wires = () => {
 			when={!wireData()}
 			fallback={
 				<div>
-					<p>Wire data:</p>
-					<pre>{JSON.stringify(wireData(), null, 2)}</pre>
-					{/* <p>Player: {getStationData().player}</p>
-					<pre>{JSON.stringify(getStationData().data, null, 2)}</pre> */}
+					<h2 class="text-4xl text-center mt-4">🔌Connect Wires🔌</h2>
+					{/* <pre>{JSON.stringify(wireData(), null, 2)}</pre> */}
+					<div class="flex flex-row flex-wrap gap-x-12 gap-y-20 justify-center items-center my-12">
+						<div class="flex flex-row gap-4">
+							<p
+								class="text-4xl block"
+								style={{ "font-family": "Arial, sans-serif" }}
+							>
+								1️⃣
+							</p>
+							<p class="text-4xl block">
+								{wireData()!.wiring[0][1] === "0"
+									? "🔴"
+									: wireData()!.wiring[0][1] === "1"
+									? "♥️"
+									: wireData()!.wiring[0][1] === "2"
+									? "🟥"
+									: "♦️"}
+							</p>
+						</div>
+						<div class="flex flex-row gap-4">
+							<p
+								class="text-4xl block"
+								style={{ "font-family": "Arial, sans-serif" }}
+							>
+								2️⃣
+							</p>
+							<p class="text-4xl block">
+								{wireData()!.wiring[1][1] === "0"
+									? "🔴"
+									: wireData()!.wiring[1][1] === "1"
+									? "♥️"
+									: wireData()!.wiring[1][1] === "2"
+									? "🟥"
+									: "♦️"}
+							</p>
+						</div>
+						<div class="flex flex-row gap-4">
+							<p
+								class="text-4xl block"
+								style={{ "font-family": "Arial, sans-serif" }}
+							>
+								3️⃣
+							</p>
+							<p class="text-4xl block">
+								{wireData()!.wiring[2][1] === "0"
+									? "🔴"
+									: wireData()!.wiring[2][1] === "1"
+									? "♥️"
+									: wireData()!.wiring[2][1] === "2"
+									? "🟥"
+									: "♦️"}
+							</p>
+						</div>
+						<div class="flex flex-row gap-4">
+							<p
+								class="text-4xl block"
+								style={{ "font-family": "Arial, sans-serif" }}
+							>
+								4️⃣
+							</p>
+							<p class="text-4xl block">
+								{wireData()!.wiring[3][1] === "0"
+									? "🔴"
+									: wireData()!.wiring[3][1] === "1"
+									? "♥️"
+									: wireData()!.wiring[3][1] === "2"
+									? "🟥"
+									: "♦️"}
+							</p>
+						</div>
+					</div>
+					<p class="text-2xl text-center">Connect the correct wires!</p>
 				</div>
 			}
 		>
-			<p>TODO station loading or no data...</p>
-			<button
-				class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-8"
-				onClick={async () => {
-					const index = gameStateData().stations.findIndex(
-						(station) => station[1] === playerData()?.playerId,
-					);
-					if (gameStateData().stations.length > 0 && index !== -1) {
-						await fetch("https://among-us-irl.mcdle.net/setStationData", {
-							method: "POST",
-							body: JSON.stringify({
-								stationId: gameStateData().stations[index][0],
-								data: {
-									wires: [
-										{
-											color: "red",
-											status: "cut",
-										},
-										{
-											color: "blue",
-											status: "cut",
-										},
-										{
-											color: "green",
-											status: "cut",
-										},
-									],
-								},
-							}),
-							headers: {
-								"Content-Type": "application/json",
-							},
-						});
-					} else {
-						alert("You are not in a station!");
-					}
-				}}
-			>
-				Set Wire data (TODO Btn will be removed)
-			</button>
+			<p>Loading data...</p>
 		</Show>
 	);
 };
