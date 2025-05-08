@@ -143,10 +143,20 @@ const Lobby = () => {
 				<Match when={state() === "lobby"}>
 					<img src="/Logo.svg" alt="Among Us IRL icon" />
 					<h1 class="text-4xl">Among Us IRL</h1>
-					<p class="text-2xl">Welcome to the Among Us IRL</p>
-					<p class="px-8 text-center">
-						Click the button below to launch, then register at the base station.
-					</p>
+					<p class="text-2xl">Welcome to the Among Us IRL!</p>
+					<Show
+						when={gameStateData().currentGameId !== ""}
+						fallback={
+							<p>
+								Click the button below to join a lobby, then register at the
+								base station.
+							</p>
+						}
+					>
+						<p class="px-8 text-center">
+							Click the button below to start a new Lobby.
+						</p>
+					</Show>
 					<button
 						class="bg-red-500 px-8 py-4 rounded-2xl text-white font-bold"
 						onClick={handleStartGame}
@@ -155,7 +165,7 @@ const Lobby = () => {
 					</button>
 				</Match>
 				<Match when={state() === "error-nfc"}>
-					<img src="/Logo_sad.svg" alt="Among Us IRL icon" />
+					<img src="/PlayerTag_Sad" alt="Among Us IRL icon" />
 					<h1 class="text-4xl">Error finding NFC</h1>
 					<p class="px-8 text-center">
 						Oh noes! Seems like NDEFReader is not available, are you on
@@ -178,7 +188,7 @@ const Lobby = () => {
 					</p>
 				</Match>
 				<Match when={state() === "sync-chip"}>
-					<img src="/Logo_sync.svg" alt="Among Us IRL icon" />
+					<img src="/PlayerTag.svg" alt="Among Us IRL icon" />
 					<h1 class="text-4xl">Sync Chip</h1>
 					<p class="px-8 text-center">
 						Please hold your phone and your life chip together to sync them.

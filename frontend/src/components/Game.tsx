@@ -23,6 +23,7 @@ import {
 } from "../utils";
 import Dead from "./GameStates/Dead";
 import MeetingResult from "./GameStates/MeetingResult";
+import GameOver from "./GameStates/GameOver";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -118,9 +119,6 @@ const Game = () => {
 							/>{" "}
 							{/* {gameStateData().gamesCompleted.length}/{gameStateData().playersConnected.length * 3} */}
 						</div>
-						<Show when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
-							<ScannedPlayer time={time} />
-						</Show>
 						<Switch>
 							<Match when={playState() === "emergency"}>
 								<Meeting />
@@ -230,27 +228,14 @@ const Game = () => {
 					<MeetingResult />
 				</Match>
 				<Match when={gameStateData().gameOver !== "IN_PROGRESS"}>
-					<div>
-						<p>Game over! {gameStateData().gameOver}</p>
-						<button
-							class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-							onClick={async () => {
-								await fetch("https://among-us-irl.mcdle.net/reset", {
-									method: "POST",
-								});
-								setGameState("lobby");
-								setPlayerData({
-									playerId: -1,
-								});
-							}}
-						>
-							Back to menu
-						</button>
-					</div>
+					<GameOver />
 				</Match>
 				<Match when={showRoleInfo()}>
 					{/* display the players role */}
 					<YourRole setShowRoleInfo={setShowRoleInfo} />
+				</Match>
+				<Match when={(lastScannedPlayer()?.timeStamp ?? -1) >= time()}>
+					<ScannedPlayer time={time} />
 				</Match>
 			</Switch>
 		</div>

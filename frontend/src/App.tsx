@@ -123,6 +123,18 @@ const App: Component = () => {
 			</header>
 			{/* <MeetingResult /> */}
 			<Switch>
+				<Match when={gameState() === "game" && playerData().playerId < 0}>
+					<div class="flex flex-col items-center justify-center h-full bg-gray-100 gap-4">
+						<img src="/Logo.svg" alt="Among Us IRL icon" />
+						<div class="p-8">
+							<p class="text-2xl">Welcome to the Among Us IRL!</p>
+							<p>
+								There is currently a game going on, please wait for it to
+								complete
+							</p>
+						</div>
+					</div>
+				</Match>
 				<Match when={gameState() === "lobby"}>
 					<Lobby />
 				</Match>

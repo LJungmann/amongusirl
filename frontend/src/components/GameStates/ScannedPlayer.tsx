@@ -26,15 +26,15 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 
 	return (
 		<div>
-			<div>
-				Recently scanned player: {lastScannedPlayer()?.playerId ?? "none"} (
-				{new Date(lastScannedPlayer()?.timeStamp ?? -1).toLocaleTimeString()}{" "}
-				greater than {new Date(props.time()).toLocaleTimeString()})
-			</div>
 			<Show
 				when={isPlayerAlive(lastScannedPlayer()?.playerId)}
 				fallback={
 					<div>
+						<img
+							src={"/" + lastScannedPlayer()?.playerId + "_dead.webp"}
+							alt=""
+							class="w-fit h-[30vh]"
+						/>
 						<p>Player is dead!</p>
 						<button class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32">
 							Report
@@ -43,6 +43,11 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 				}
 			>
 				<div>
+					<img
+						src={"/" + lastScannedPlayer()?.playerId + "_alive.webp"}
+						alt=""
+						class="w-fit h-[30vh]"
+					/>
 					<p>Player is alive!</p>
 					<button
 						class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32"
@@ -52,6 +57,15 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 					</button>
 				</div>
 			</Show>
+			<p>
+				Closing in{" "}
+				{Math.floor(
+					(new Date(lastScannedPlayer()?.timeStamp ?? -1).getTime() -
+						new Date(props.time()).getTime()) /
+						1000,
+				)}
+				s
+			</p>
 		</div>
 	);
 };
