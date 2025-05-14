@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { OpenGameResponse } from './model/game/OpenGameResponse';
-import { GameState } from './model/game/GameState';
+import { GameSettings, GameState } from './model/game/GameState';
 import { ApiBody } from '@nestjs/swagger';
 import { PlayerIdDto } from './model/dtos/PlayerIdDto';
 import { StartStationDto } from './model/dtos/StartStationDto';
 import { StationIdDto } from './model/dtos/StationIdDto';
 import { StationDataDto } from './model/dtos/StationDataDto';
+import { PlayerScanIdDto } from './model/dtos/PlayerScanIdDto';
 
 @Controller()
 export class AppController {
@@ -31,7 +32,7 @@ export class AppController {
   }
 
   @Post('start')
-  startGame(): number {
+  startGame(): void {
     return this.appService.startGame();
   }
 
@@ -87,9 +88,22 @@ export class AppController {
     this.appService.completeStation(data.stationId);
   }
 
+  @Post('setSettings')
+  @ApiBody({ type: GameSettings })
+  setSettings(@Body() data: GameSettings): void {
+    this.appService.setSettings(data);
+  }
+
   @Post('setStationData')
   @ApiBody({ type: StationDataDto })
   setStationData(@Body() data: StationDataDto): void {
     this.appService.setStationData(data.stationId, data.data);
+  }
+
+  @Post('scanPlayer')
+  @ApiBody({ type: PlayerScanIdDto })
+  scanPlayer(@Body() data: PlayerScanIdDto): void {
+    console.log(data);
+    this.appService.scanPlayer(data.playerId, data.scannedId);
   }
 }

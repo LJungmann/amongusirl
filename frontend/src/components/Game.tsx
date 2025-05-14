@@ -24,6 +24,7 @@ import {
 import Dead from "./GameStates/Dead";
 import MeetingResult from "./GameStates/MeetingResult";
 import GameOver from "./GameStates/GameOver";
+import PlayerRow from "./PlayerRow";
 
 type PlayState = "station" | "game" | "emergency" | "dead";
 export const [playState, setPlayState] = createSignal<PlayState>("game");
@@ -31,6 +32,8 @@ export const [lastScannedPlayer, setLastScannedPlayer] = createSignal<{
 	playerId: number;
 	timeStamp: number;
 } | null>(null);
+
+export const [lastSuccessfulScan, setLastSuccessfulScan] = createSignal(0);
 
 const [time, setTime] = createSignal(-1);
 
@@ -103,7 +106,7 @@ const Game = () => {
 	>(null);
 
 	return (
-		<div class="h-full mx-4">
+		<div class="h-full mx-4 mt-4">
 			<Switch
 				fallback={
 					<>
@@ -115,6 +118,20 @@ const Game = () => {
 							<progress
 								max={gameStateData().playersConnected.length * 3}
 								value={gameStateData().gamesCompleted.length}
+								class="w-full h-12 progressbar"
+							/>{" "}
+							{/* {gameStateData().gamesCompleted.length}/{gameStateData().playersConnected.length * 3} */}
+						</div>
+						<div class="relative">
+							<span class="absolute top-1/2 left-1/2 text-2xl font-bold -translate-1/2">
+								Players Scanned
+							</span>
+							<progress
+								max={gameStateData().playersConnected.length ** 2}
+								value={gameStateData().scansCompleted.reduce(
+									(acc, scan) => acc + scan[1],
+									0,
+								)}
 								class="w-full h-12 progressbar"
 							/>{" "}
 							{/* {gameStateData().gamesCompleted.length}/{gameStateData().playersConnected.length * 3} */}
@@ -214,7 +231,18 @@ const Game = () => {
 									</Switch>
 								</div>
 								<p class="mt-8">
-									Scan players' tags to prove your innocence or to kill them.
+									Scan players' tags to fill the scan progress bar or to kill
+									them.
+									<Show when={(lastSuccessfulScan() ?? 0) > time()}>
+										<span class="text-red-500">
+											{" "}
+											On cooldown for{" "}
+											{Math.floor(
+												((lastSuccessfulScan() ?? 0) - time()) / 1000,
+											)}
+											s
+										</span>
+									</Show>
 								</p>
 							</Match>
 							<Match when={playState() === "station"}>
@@ -265,7 +293,7 @@ export async function handleReading(event: Event) {
 						alert("Invalid station! You do not have a task here.");
 						return;
 					}
-					await fetch("https://among-us-irl.mcdle.net/startStation", {
+					await fetch(import.meta.env.VITE_WEB_URL + "startStation", {
 						method: "POST",
 						body: JSON.stringify({
 							stationId: data,
@@ -283,7 +311,7 @@ export async function handleReading(event: Event) {
 						if (!isPlayerAlive(playerId)) {
 							alert("Player " + playerId + " is dead! Reporting...");
 							// Report dead players
-							await fetch("https://among-us-irl.mcdle.net/bodyFound", {
+							await fetch(import.meta.env.VITE_WEB_URL + "bodyFound", {
 								method: "POST",
 								body: JSON.stringify({
 									playerId: playerId,
@@ -293,6 +321,20 @@ export async function handleReading(event: Event) {
 								},
 							});
 						} else {
+							if ((lastSuccessfulScan() ?? 0) < new Date().getTime()) {
+								// 1 minute
+								setLastSuccessfulScan(new Date().getTime() + 60000);
+								await fetch(import.meta.env.VITE_WEB_URL + "scanPlayer", {
+									method: "POST",
+									body: JSON.stringify({
+										playerId: playerData().playerId,
+										scannedId: playerId,
+									}),
+									headers: {
+										"Content-Type": "application/json",
+									},
+								});
+							}
 							// Scan alive players
 							// alert("Player " + playerId + " is alive!");
 							setLastScannedPlayer({
@@ -308,7 +350,7 @@ export async function handleReading(event: Event) {
 					if (gameStateData().emergencyButtonPressed) {
 						if (!isPlayerRegisteredForVoting()) {
 							const response = await fetch(
-								"https://among-us-irl.mcdle.net/registerVoting",
+								import.meta.env.VITE_WEB_URL + "registerVoting",
 								{
 									method: "POST",
 									body: JSON.stringify({
@@ -326,11 +368,11 @@ export async function handleReading(event: Event) {
 							alert("You are dead! You cannot call an emergency meeting!");
 							return;
 						}
-						await fetch("https://among-us-irl.mcdle.net/emergency", {
+						await fetch(import.meta.env.VITE_WEB_URL + "emergency", {
 							method: "POST",
 						});
 						const response = await fetch(
-							"https://among-us-irl.mcdle.net/registerVoting",
+							import.meta.env.VITE_WEB_URL + "registerVoting",
 							{
 								method: "POST",
 								body: JSON.stringify({

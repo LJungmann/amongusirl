@@ -3,7 +3,7 @@ export class GameState {
   playersConnected: Array<{ playerId: number }> = [];
   gamesCompleted: string[] = [];
   alivePlayers: Array<{ playerId: number }> = [];
-  imposterPlayerId: { playerId: number } = { playerId: -1 };
+  imposterPlayerId: Array<{ playerId: number }> = [];
   isGameStarted: boolean = false;
   isVotingActive: boolean = false;
   emergencyButtonPressed: boolean = false;
@@ -14,9 +14,24 @@ export class GameState {
   bodyFound: boolean = false;
   playersRegisteredForVoting: number[] = [];
   votes: [{ playerId: number }, number][] = []; // tuple, player has x votes
+  scansCompleted: [{ playerId: number }, number][] = []; // tuple, player has x scans of other players
   stations: [string, number, any][] = []; // tuple, stationId and playerId and stationData
   playersNeededStations: PlayerToStations[] = [];
   lastMeetingResult: string = ''; // result of the last meeting
+  gameSettings: GameSettings = {
+    imposterCount: 1,
+    meetingDuration: 60,
+  };
+}
+
+export class GameSettings {
+  imposterCount: number;
+  meetingDuration: number; // in seconds
+
+  constructor() {
+    this.imposterCount = 1;
+    this.meetingDuration = 60;
+  }
 }
 
 export class PlayerToStations {

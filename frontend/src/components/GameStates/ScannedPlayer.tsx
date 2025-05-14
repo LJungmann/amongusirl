@@ -7,7 +7,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 	function attemptKill() {
 		if (isPlayerImposter()) {
 			// alert("Killing player " + lastScannedPlayer()?.playerId);
-			fetch("https://among-us-irl.mcdle.net/kill", {
+			fetch(import.meta.env.VITE_WEB_URL + "kill", {
 				method: "POST",
 				body: JSON.stringify({
 					playerId: lastScannedPlayer()?.playerId,
@@ -17,10 +17,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 				},
 			});
 		} else {
-			alert(
-				"You are not the imposter! " +
-					JSON.stringify(gameStateData().imposterPlayerId),
-			);
+			alert("You are not the imposter!");
 		}
 	}
 

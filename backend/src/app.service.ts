@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { OpenGameResponse } from './model/game/OpenGameResponse';
 import { randomUUID } from 'crypto';
-import { GameState, PlayerToStations } from './model/game/GameState';
+import {
+  GameSettings,
+  GameState,
+  PlayerToStations,
+} from './model/game/GameState';
 
 @Injectable()
 export class AppService {
@@ -20,7 +24,7 @@ export class AppService {
     this.gameState.playersConnected = [];
     this.gameState.alivePlayers = [];
     this.gameState.isGameStarted = false;
-    this.gameState.imposterPlayerId = { playerId: -1 };
+    this.gameState.imposterPlayerId = [];
     this.gameState.gamesCompleted = [];
     this.gameState.emergencyButtonPressed = false;
     this.gameState.meetingEndTime = -1;
@@ -31,6 +35,7 @@ export class AppService {
     this.gameState.playersRegisteredForVoting = [];
     this.gameState.currentGameId = '';
     this.gameState.votes = [];
+    this.gameState.scansCompleted = [];
     this.gameState.stations = [];
     this.gameState.playersNeededStations = [];
     this.gameState.lastMeetingResult = '';
@@ -60,17 +65,17 @@ export class AppService {
     return playerId;
   }
 
-  startGame(): number {
+  startGame() {
     this.shuffle(this.gameState.playersConnected);
-    this.gameState.imposterPlayerId = this.gameState.playersConnected[0];
+    this.gameState.imposterPlayerId = this.gameState.playersConnected.slice(
+      0,
+      this.gameState.gameSettings.imposterCount,
+    );
     this.gameState.isGameStarted = true;
     // 3 tasks per player
     // randomly selected
     this.gameState.playersConnected.forEach((playerId) => {
-      // if (playerId.playerId === this.gameState.imposterPlayerId.playerId) {
-      //   return;
-      // }
-      let playerToStations = new PlayerToStations();
+      const playerToStations = new PlayerToStations();
       playerToStations.playerId = playerId.playerId;
 
       this.shuffle(this.allStationIds);
@@ -80,7 +85,6 @@ export class AppService {
       }
       this.gameState.playersNeededStations.push(playerToStations);
     });
-    return this.gameState.imposterPlayerId.playerId;
   }
 
   getGameState(): GameState {
@@ -140,17 +144,12 @@ export class AppService {
         this.gameState.playersRegisteredForVoting.length ==
         this.gameState.alivePlayers.length
       ) {
-        const defaultTime = '60';
         this.gameState.meetingEndTime =
-          Date.now() +
-          parseInt(process.env.MEETING_DURATION_S ?? defaultTime) * 1000;
+          Date.now() + this.gameState.gameSettings.meetingDuration * 1000;
         this.gameState.meetingStartTime = Date.now();
-        this.meetingTimer = setTimeout(
-          () => {
-            this.finishVoting();
-          },
-          parseInt(process.env.MEETING_DURATION_S ?? defaultTime) * 1000, // TODO process env not working?
-        ); // 10 seconds by default
+        this.meetingTimer = setTimeout(() => {
+          this.finishVoting();
+        }, this.gameState.gameSettings.meetingDuration * 1000);
       }
       return true;
     } else {
@@ -178,6 +177,32 @@ export class AppService {
       this.finishVoting();
     }
     return true;
+  }
+
+  scanPlayer(playerId: number, scannedPlayerId: number): void {
+    console.log('scanPlayer', playerId, scannedPlayerId);
+    // check if scanned player is alive
+    if (
+      this.gameState.alivePlayers.findIndex(
+        (x) => x.playerId === scannedPlayerId,
+      ) !== -1
+    ) {
+      // check if player is not the same
+      if (playerId !== scannedPlayerId) {
+        const index = this.gameState.scansCompleted.findIndex(
+          (scan) => scan[0].playerId === playerId,
+        );
+        if (index !== -1) {
+          this.gameState.scansCompleted[index][1]++;
+        } else {
+          this.gameState.scansCompleted.push([
+            { playerId: scannedPlayerId },
+            1,
+          ]);
+        }
+        this.checkIfGameOver();
+      }
+    }
   }
 
   startStation(stationId: string, playerId: number): void {
@@ -271,6 +296,11 @@ export class AppService {
     }
   }
 
+  setSettings(settings: GameSettings) {
+    this.gameState.gameSettings = settings;
+    console.log('setSettings', this.gameState.gameSettings);
+  }
+
   setStationData(stationId: string, data: any): void {
     const index = this.gameState.stations.findIndex(
       (station) => station[0] === stationId,
@@ -349,23 +379,30 @@ export class AppService {
 
   private checkIfGameOver() {
     // too little players remaining and imposter is alive
-    if (
-      this.gameState.alivePlayers.length <= 2 &&
-      this.gameState.alivePlayers.findIndex(
-        (x) => x.playerId === this.gameState.imposterPlayerId.playerId,
-      ) !== -1
-    ) {
+    if (this.gameState.alivePlayers.length <= this.imposterAliveCount() * 2) {
       this.gameState.gameOver = 'IMPOSTER_WIN';
     }
-    // enough stations completed or imposter is dead
+    // enough stations completed && enough players scanned
+    //  or imposters are all dead
     if (
-      this.gameState.gamesCompleted.length >=
-        this.gameState.playersConnected.length * 3 ||
-      this.gameState.alivePlayers.findIndex(
-        (x) => x.playerId === this.gameState.imposterPlayerId.playerId,
-      ) === -1
+      (this.gameState.gamesCompleted.length >=
+        this.gameState.playersConnected.length * 3 &&
+        this.gameState.scansCompleted.reduce(
+          (acc, scan) => acc + scan[1],
+          0,
+        ) ===
+          this.gameState.playersConnected.length ** 2) ||
+      this.imposterAliveCount() === 0
     ) {
       this.gameState.gameOver = 'CREWMATES_WIN';
     }
+  }
+
+  private imposterAliveCount(): number {
+    return this.gameState.alivePlayers.filter((player) =>
+      this.gameState.imposterPlayerId.find(
+        (imposter) => imposter.playerId === player.playerId,
+      ),
+    ).length;
   }
 }

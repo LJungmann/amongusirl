@@ -20,7 +20,7 @@ const Debug = () => {
 			<button
 				class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
 				onClick={async () => {
-					await fetch("https://among-us-irl.mcdle.net/reset", {
+					await fetch(import.meta.env.VITE_WEB_URL + "reset", {
 						method: "POST",
 					});
 					setGameState("lobby");

@@ -6,7 +6,11 @@ import { gameStateData, playerData } from "./App";
  * @returns True if the player is an imposter, false otherwise.
  */
 export function isPlayerImposter(playerId: number = playerData().playerId) {
-	return gameStateData().imposterPlayerId.playerId === playerId;
+	return (
+		gameStateData().imposterPlayerId.findIndex(
+			(x) => x.playerId === playerId,
+		) !== -1
+	);
 }
 
 /**

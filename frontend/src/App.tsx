@@ -20,7 +20,7 @@ type GameState = {
 	playersConnected: Array<{ playerId: number }>;
 	gamesCompleted: number[];
 	alivePlayers: Array<{ playerId: number }>;
-	imposterPlayerId: { playerId: number };
+	imposterPlayerId: Array<{ playerId: number }>;
 	isGameStarted: boolean;
 	isVotingActive: boolean;
 	emergencyButtonPressed: boolean;
@@ -31,9 +31,14 @@ type GameState = {
 	bodyFound: boolean;
 	playersRegisteredForVoting: number[];
 	votes: [number, number][]; // tuple, player has x votes
+	scansCompleted: [number, number][]; // tuple, player has x scans of other players
 	stations: [string, number, any][];
 	playersNeededStations: PlayerToStations[];
 	lastMeetingResult: string; // result of the last meeting
+	gameSettings: {
+		imposterCount: number;
+		meetingDuration: number; // in seconds
+	};
 };
 
 type PlayerToStations = {
@@ -55,16 +60,21 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	meetingStartTime: -1,
 	gameOver: "IN_PROGRESS",
 	gamesCompleted: [],
-	imposterPlayerId: { playerId: -1 },
+	imposterPlayerId: [],
 	isGameStarted: false,
 	isVotingActive: false,
 	killsEnabled: false,
 	playersConnected: [],
 	playersRegisteredForVoting: [],
 	votes: [],
+	scansCompleted: [],
 	stations: [],
 	playersNeededStations: [],
 	lastMeetingResult: "",
+	gameSettings: {
+		imposterCount: 1,
+		meetingDuration: 60,
+	},
 });
 export const [playerData, setPlayerData] = createSignal<PlayerData>({
 	playerId: -99,
@@ -73,7 +83,7 @@ export const [debug, setDebug] = createSignal(false);
 const App: Component = () => {
 	onMount(() => {
 		setInterval(async () => {
-			const response = await fetch("https://among-us-irl.mcdle.net/gameState");
+			const response = await fetch(import.meta.env.VITE_WEB_URL + "gameState");
 			setGameStateData((await response.json()) as GameState);
 			const gameId = localStorage.getItem("among.gameId");
 			const playerId = localStorage.getItem("among.playerId");
@@ -110,7 +120,9 @@ const App: Component = () => {
 						<b>Among Us IRL</b>
 					</p>
 				</span>
-				<Show when={playerData().playerId >= 0}>
+				<Show
+					when={gameStateData().isGameStarted && playerData().playerId >= 0}
+				>
 					<span class="flex flex-row items-center gap-2 text-2xl">
 						Player {playerData().playerId + 1}
 						<img

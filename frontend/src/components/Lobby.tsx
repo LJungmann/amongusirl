@@ -8,13 +8,14 @@ const Lobby = () => {
 		| "registering" //register players to lobby by scanning the game tag
 		| "sync-chip" //scan chip
 		| "registered" //normal players
+		| "configure" // configure game settings
 		| "start-game"; //host
 	const [state, setState] = createSignal<State>("lobby");
 
 	async function handleStartGame() {
 		if ("NDEFReader" in window) {
 			if (gameStateData().currentGameId.length < 8) {
-				const data = await fetch("https://among-us-irl.mcdle.net/open", {
+				const data = await fetch(import.meta.env.VITE_WEB_URL + "open", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -71,7 +72,7 @@ const Lobby = () => {
 											// log("readLog", "Wrote player ID to NFC tag");
 											// alert("Wrote player ID to NFC tag");
 											if (playerData().playerId == 0) {
-												setState("start-game");
+												setState("configure");
 											} else {
 												setState("registered");
 											}
@@ -89,7 +90,7 @@ const Lobby = () => {
 									decoder.decode(record.data) === import.meta.env.VITE_APP_URL
 								) {
 									const data = await fetch(
-										"https://among-us-irl.mcdle.net/join",
+										import.meta.env.VITE_WEB_URL + "join",
 										{
 											method: "POST",
 											headers: {
@@ -137,6 +138,9 @@ const Lobby = () => {
 		}
 	}
 
+	let imposterCountInput: HTMLInputElement | undefined;
+	let meetingTimeInput: HTMLInputElement | undefined;
+
 	return (
 		<div class="flex flex-col items-center justify-center h-full bg-gray-100 gap-4">
 			<Switch>
@@ -147,7 +151,7 @@ const Lobby = () => {
 					<Show
 						when={gameStateData().currentGameId !== ""}
 						fallback={
-							<p>
+							<p class="px-8 text-center">
 								Click the button below to join a lobby, then register at the
 								base station.
 							</p>
@@ -194,6 +198,64 @@ const Lobby = () => {
 						Please hold your phone and your life chip together to sync them.
 					</p>
 				</Match>
+				<Match when={state() === "configure"}>
+					<img src="/Logo.svg" alt="Among Us IRL icon" />
+					<h1 class="text-4xl">Settings</h1>
+					<form
+						onSubmit={async (e) => {
+							e.preventDefault();
+							const imposterCount = parseInt(imposterCountInput?.value ?? "1");
+							const meetingTime = parseInt(meetingTimeInput?.value ?? "30");
+							if (isNaN(imposterCount) || isNaN(meetingTime)) {
+								alert("Please enter valid numbers");
+								return;
+							}
+							await fetch(import.meta.env.VITE_WEB_URL + "setSettings", {
+								method: "POST",
+								body: JSON.stringify({
+									imposterCount: imposterCount,
+									meetingDuration: meetingTime,
+								}),
+								headers: {
+									"Content-Type": "application/json",
+								},
+							});
+							setState("start-game");
+						}}
+						class="flex flex-col gap-4 items-center justify-center w-full h-full"
+					>
+						{/* Imposter count 1-2 */}
+						<label class="text-2xl">
+							Number of imposters:
+							<input
+								type="number"
+								min="1"
+								max="2"
+								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+								ref={imposterCountInput}
+								value={gameStateData().gameSettings.imposterCount ?? 1}
+							/>
+						</label>
+						{/* Meeting time seconds 30-240 */}
+						<label class="text-2xl">
+							Meeting time (seconds):
+							<input
+								type="number"
+								min="30"
+								max="240"
+								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+								ref={meetingTimeInput}
+								value={gameStateData().gameSettings.meetingDuration ?? 60}
+							/>
+						</label>
+						<input
+							type="submit"
+							class="text-2xl bg-red-500 rounded-2xl px-4 py-2"
+						>
+							Confirm Settings
+						</input>
+					</form>
+				</Match>
 				<Match when={state() === "start-game"}>
 					<p class="text-8xl">
 						{gameStateData()?.playersConnected.length ?? "??"}
@@ -220,7 +282,7 @@ const Lobby = () => {
 										import.meta.env.VITE_PLAYER_COUNT
 									) {
 										setGameState("game");
-										fetch("https://among-us-irl.mcdle.net/start", {
+										fetch(import.meta.env.VITE_WEB_URL + "start", {
 											method: "POST",
 										});
 									} else {

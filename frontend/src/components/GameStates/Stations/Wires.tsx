@@ -12,7 +12,7 @@ const Wires = () => {
 		];
 	} | null>(null);
 	onMount(async () => {
-		const response = await fetch("https://among-us-irl.mcdle.net/wires", {
+		const response = await fetch(import.meta.env.VITE_WEB_URL + "wires", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

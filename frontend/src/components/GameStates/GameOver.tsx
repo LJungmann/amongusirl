@@ -1,6 +1,12 @@
 import { For, onMount, Show } from "solid-js";
-import { gameStateData, setGameState, setPlayerData } from "../../App";
+import {
+	gameStateData,
+	playerData,
+	setGameState,
+	setPlayerData,
+} from "../../App";
 import { isPlayerImposter } from "../../utils";
+import PlayerRow from "../PlayerRow";
 
 const GameOver = () => {
 	onMount(() => {
@@ -8,7 +14,7 @@ const GameOver = () => {
 			navigator.vibrate(500);
 		}
 		setTimeout(async () => {
-			await fetch("https://among-us-irl.mcdle.net/reset", {
+			await fetch(import.meta.env.VITE_WEB_URL + "reset", {
 				method: "POST",
 			});
 			setGameState("lobby");
@@ -23,17 +29,7 @@ const GameOver = () => {
 				when={gameStateData().gameOver === "CREWMATES_WIN"}
 				fallback={
 					<>
-						<img
-							src={
-								"/" +
-								gameStateData().alivePlayers.filter((x) =>
-									isPlayerImposter(x.playerId),
-								)[0].playerId +
-								"_alive.webp"
-							}
-							alt="Impostor"
-							class="h-[30vh] w-fit"
-						/>
+						<PlayerRow players={gameStateData().playersConnected} />
 						<p class="text-3xl">
 							The{" "}
 							<span
@@ -109,7 +105,7 @@ const GameOver = () => {
 			{/* <button
 				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
 				onClick={async () => {
-					await fetch("https://among-us-irl.mcdle.net/reset", {
+					await fetch(import.meta.env.VITE_WEB_URL + "reset", {
 						method: "POST",
 					});
 					setGameState("lobby");

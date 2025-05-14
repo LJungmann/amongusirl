@@ -134,7 +134,7 @@ const Meeting = () => {
 											// 		typeof x.playerId,
 											// );
 											const response = await fetch(
-												"https://among-us-irl.mcdle.net/voteFor",
+												import.meta.env.VITE_WEB_URL + "voteFor",
 												{
 													method: "POST",
 													//"" + x.playerId,
@@ -167,7 +167,7 @@ const Meeting = () => {
 								onClick={async () => {
 									setHasVoted(true);
 									const response = await fetch(
-										"https://among-us-irl.mcdle.net/voteFor",
+										import.meta.env.VITE_WEB_URL + "voteFor",
 										{
 											method: "POST",
 											//"" + x.playerId,

@@ -71,7 +71,7 @@ const BaseStation = () => {
 							(station) => station[1] === playerData()?.playerId,
 						);
 						if (gameStateData().stations.length > 0 && index !== -1) {
-							await fetch("https://among-us-irl.mcdle.net/completeStation", {
+							await fetch(import.meta.env.VITE_WEB_URL + "completeStation", {
 								method: "POST",
 								body: JSON.stringify({
 									stationId: gameStateData().stations[index][0],
