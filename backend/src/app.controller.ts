@@ -8,6 +8,7 @@ import { StartStationDto } from './model/dtos/StartStationDto';
 import { StationIdDto } from './model/dtos/StationIdDto';
 import { StationDataDto } from './model/dtos/StationDataDto';
 import { PlayerScanIdDto } from './model/dtos/PlayerScanIdDto';
+import { PlayerNickIdDto } from './model/dtos/PlayerNickIdDto';
 
 @Controller()
 export class AppController {
@@ -105,5 +106,11 @@ export class AppController {
   scanPlayer(@Body() data: PlayerScanIdDto): void {
     console.log(data);
     this.appService.scanPlayer(data.playerId, data.scannedId);
+  }
+
+  @Post('setNickname')
+  @ApiBody({ type: PlayerNickIdDto })
+  setNickname(@Body() data: PlayerNickIdDto): void {
+    this.appService.setNickname(data.playerId, data.nickname);
   }
 }

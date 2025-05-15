@@ -13,6 +13,7 @@ export class GameState {
   killsEnabled: boolean = true;
   bodyFound: boolean = false;
   playersRegisteredForVoting: number[] = [];
+  nicknames: [{ playerId: number }, string][] = []; // tuple, player has name
   votes: [{ playerId: number }, number][] = []; // tuple, player has x votes
   scansCompleted: [{ playerId: number }, number][] = []; // tuple, player has x scans of other players
   stations: [string, number, any][] = []; // tuple, stationId and playerId and stationData

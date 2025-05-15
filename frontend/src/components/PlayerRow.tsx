@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 import { gameStateData, playerData } from "../App";
-import { isPlayerAlive } from "../utils";
+import { getPlayerName, isPlayerAlive } from "../utils";
 
 const PlayerRow = (props: { players: Array<{ playerId: number }> }) => {
 	return (
@@ -29,6 +29,9 @@ const PlayerRow = (props: { players: Array<{ playerId: number }> }) => {
 							"z-index": 10 - i(),
 						}}
 					>
+						<span class="absolute left-1/2 -translate-x-1/2 text-cyan-500 font-bold text-2xl w-max">
+							{getPlayerName(x.playerId)}
+						</span>
 						<img
 							src={
 								"/" +

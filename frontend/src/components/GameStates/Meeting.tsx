@@ -1,6 +1,10 @@
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { gameStateData, playerData } from "../../App";
-import { isPlayerAlive, isPlayerRegisteredForVoting } from "../../utils";
+import {
+	getPlayerName,
+	isPlayerAlive,
+	isPlayerRegisteredForVoting,
+} from "../../utils";
 
 function getMeetingEndTime() {
 	const seconds =
@@ -105,7 +109,7 @@ const Meeting = () => {
 							fallback={<p>No players to vote for</p>}
 						>
 							{(x) => (
-								<li class="w-[45%] bg-red-500 hover:bg-red-700 flex flex-row py-4 gap-2 rounded justify-center">
+								<li class="w-[45%] bg-red-500 hover:bg-red-700 flex flex-row py-4 gap-2 rounded justify-center disabled:bg-gray-500">
 									<img
 										// src="/Among_Us_Crewmate.webp"
 										src={
@@ -120,19 +124,13 @@ const Meeting = () => {
 
 									<button
 										class="text-white font-bold w-fit"
-										disabled={hasVoted()}
+										disabled={hasVoted() || !isPlayerAlive(x.playerId)}
 										onClick={async () => {
 											if (!isPlayerAlive()) {
 												alert("You are dead! You cannot vote!");
 												return;
 											}
 											setHasVoted(true);
-											// alert(
-											// 	"Voted for " +
-											// 		x.playerId +
-											// 		" successfully! as " +
-											// 		typeof x.playerId,
-											// );
 											const response = await fetch(
 												import.meta.env.VITE_WEB_URL + "voteFor",
 												{
@@ -154,7 +152,7 @@ const Meeting = () => {
 											}
 										}}
 									>
-										Vote for {x.playerId + 1}
+										Vote for {getPlayerName(x.playerId)}
 										{x.playerId === playerData().playerId ? " (You)" : ""}
 									</button>
 								</li>

@@ -1,4 +1,4 @@
-import { createSignal, Match, Show, Switch } from "solid-js";
+import { createSignal, Match, onMount, Show, Switch } from "solid-js";
 import { gameStateData, playerData, setGameState, setPlayerData } from "../App";
 
 const Lobby = () => {
@@ -9,6 +9,7 @@ const Lobby = () => {
 		| "sync-chip" //scan chip
 		| "registered" //normal players
 		| "configure" // configure game settings
+		| "nickname" //set nickname
 		| "start-game"; //host
 	const [state, setState] = createSignal<State>("lobby");
 
@@ -74,7 +75,7 @@ const Lobby = () => {
 											if (playerData().playerId == 0) {
 												setState("configure");
 											} else {
-												setState("registered");
+												setState("nickname");
 											}
 										})
 										.catch((error) => {
@@ -138,8 +139,20 @@ const Lobby = () => {
 		}
 	}
 
+	let initialSettings = {
+		imposterCount: 1,
+		meetingDuration: 60,
+	};
+	onMount(() => {
+		initialSettings = {
+			imposterCount: gameStateData().gameSettings.imposterCount ?? 1,
+			meetingDuration: gameStateData().gameSettings.meetingDuration ?? 60,
+		};
+	});
+
 	let imposterCountInput: HTMLInputElement | undefined;
 	let meetingTimeInput: HTMLInputElement | undefined;
+	let nicknameInput: HTMLInputElement | undefined;
 
 	return (
 		<div class="flex flex-col items-center justify-center h-full bg-gray-100 gap-4">
@@ -198,6 +211,55 @@ const Lobby = () => {
 						Please hold your phone and your life chip together to sync them.
 					</p>
 				</Match>
+				<Match when={state() === "nickname"}>
+					<img src="/Logo.svg" alt="Among Us IRL icon" />
+					<h1 class="text-4xl">Settings</h1>
+					<form
+						onSubmit={async (e) => {
+							e.preventDefault();
+							const imposterCount = parseInt(imposterCountInput?.value ?? "1");
+							const meetingTime = parseInt(meetingTimeInput?.value ?? "30");
+							if (isNaN(imposterCount) || isNaN(meetingTime)) {
+								alert("Please enter valid numbers");
+								return;
+							}
+							await fetch(import.meta.env.VITE_WEB_URL + "setNickname", {
+								method: "POST",
+								body: JSON.stringify({
+									playerId: playerData().playerId,
+									nickname:
+										nicknameInput?.value ??
+										"Player " + (playerData().playerId + 1),
+								}),
+								headers: {
+									"Content-Type": "application/json",
+								},
+							});
+							if (playerData().playerId === 0) {
+								setState("start-game");
+							} else {
+								setState("registered");
+							}
+						}}
+						class="flex flex-col gap-4 items-center justify-center w-full h-full"
+					>
+						{/* Your nickname */}
+						<label class="text-2xl">
+							Nickname:
+							<input
+								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+								ref={nicknameInput}
+								value={localStorage.getItem("among.nickname") ?? ""}
+							/>
+						</label>
+						<input
+							type="submit"
+							class="text-2xl bg-red-500 rounded-2xl px-4 py-2"
+						>
+							Confirm Name
+						</input>
+					</form>
+				</Match>
 				<Match when={state() === "configure"}>
 					<img src="/Logo.svg" alt="Among Us IRL icon" />
 					<h1 class="text-4xl">Settings</h1>
@@ -220,7 +282,7 @@ const Lobby = () => {
 									"Content-Type": "application/json",
 								},
 							});
-							setState("start-game");
+							setState("nickname");
 						}}
 						class="flex flex-col gap-4 items-center justify-center w-full h-full"
 					>
@@ -233,7 +295,7 @@ const Lobby = () => {
 								max="2"
 								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
 								ref={imposterCountInput}
-								value={gameStateData().gameSettings.imposterCount ?? 1}
+								value={initialSettings.imposterCount}
 							/>
 						</label>
 						{/* Meeting time seconds 30-240 */}
@@ -245,7 +307,7 @@ const Lobby = () => {
 								max="240"
 								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
 								ref={meetingTimeInput}
-								value={gameStateData().gameSettings.meetingDuration ?? 60}
+								value={initialSettings.meetingDuration}
 							/>
 						</label>
 						<input

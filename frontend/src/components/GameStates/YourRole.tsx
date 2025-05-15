@@ -1,18 +1,18 @@
 import { onMount, Setter, Show } from "solid-js";
 import { gameStateData, playerData } from "../../App";
-import { isPlayerImposter } from "../../utils";
+import { getPlayerName, isPlayerImposter } from "../../utils";
 import PlayerRow from "../PlayerRow";
 
 const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 	onMount(() => {
 		setTimeout(() => {
 			props.setShowRoleInfo(false);
-		}, 1000);
+		}, 3000);
 	});
 
 	const imposterBuddy = gameStateData()
 		.imposterPlayerId.filter((x) => x.playerId != playerData().playerId)
-		.map((x) => x.playerId + 1);
+		.map((x) => x.playerId);
 
 	return (
 		<div class="flex flex-col items-center justify-center gap-4 h-full relative">
@@ -39,11 +39,6 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 			>
 				<div class="relative imposter">
 					<PlayerRow players={gameStateData().imposterPlayerId} />
-					{/* <img
-						src={"/" + playerData().playerId + "_alive.webp"}
-						alt="Among Us IRL icon"
-						class="h-[30vh] relative"
-					/> */}
 				</div>
 				<p
 					class="text-7xl text-red-500 font-bold"
@@ -53,7 +48,7 @@ const YourRole = (props: { setShowRoleInfo: Setter<boolean> }) => {
 				</p>
 				<Show when={imposterBuddy.length > 0}>
 					<p>
-						Player #{imposterBuddy.join(", #")}{" "}
+						{imposterBuddy.map((x) => getPlayerName(x)).join(", ")}{" "}
 						{imposterBuddy.length == 1 ? "is your buddy" : "are your buddies"}
 					</p>
 				</Show>

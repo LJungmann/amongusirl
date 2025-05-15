@@ -12,7 +12,8 @@ import ReloadPrompt from "./components/ReloadPromp";
 import Lobby from "./components/Lobby";
 import Game from "./components/Game";
 import Debug from "./components/Debug";
-import MeetingResult from "./components/GameStates/MeetingResult";
+import { getPlayerName } from "./utils";
+import PlayerRow from "./components/PlayerRow";
 
 type State = "lobby" | "game";
 type GameState = {
@@ -30,6 +31,7 @@ type GameState = {
 	killsEnabled: boolean;
 	bodyFound: boolean;
 	playersRegisteredForVoting: number[];
+	nicknames: [{ playerId: number }, string][]; // tuple, player has name
 	votes: [number, number][]; // tuple, player has x votes
 	scansCompleted: [number, number][]; // tuple, player has x scans of other players
 	stations: [string, number, any][];
@@ -66,6 +68,7 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	killsEnabled: false,
 	playersConnected: [],
 	playersRegisteredForVoting: [],
+	nicknames: [],
 	votes: [],
 	scansCompleted: [],
 	stations: [],
@@ -124,7 +127,7 @@ const App: Component = () => {
 					when={gameStateData().isGameStarted && playerData().playerId >= 0}
 				>
 					<span class="flex flex-row items-center gap-2 text-2xl">
-						Player {playerData().playerId + 1}
+						{getPlayerName()}
 						<img
 							src={"/" + playerData().playerId + "_alive.webp"}
 							alt="Player icon"
@@ -133,6 +136,22 @@ const App: Component = () => {
 					</span>
 				</Show>
 			</header>
+			{/* <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-4">
+				<PlayerRow
+					players={[
+						{ playerId: 0 },
+						{ playerId: 1 },
+						{ playerId: 2 },
+						{ playerId: 3 },
+						{ playerId: 4 },
+						{ playerId: 5 },
+						{ playerId: 6 },
+						{ playerId: 7 },
+						{ playerId: 8 },
+						{ playerId: 9 },
+					]}
+				/>
+			</div> */}
 			{/* <MeetingResult /> */}
 			<Switch>
 				<Match when={gameState() === "game" && playerData().playerId < 0}>
@@ -154,10 +173,10 @@ const App: Component = () => {
 					<Game />
 				</Match>
 			</Switch>
-			<Show when={debug()}>
-				<Debug />
-			</Show>
 			<Show when={import.meta.env.MODE === "development"}>
+				<Show when={debug()}>
+					<Debug />
+				</Show>
 				<button
 					class="fixed bottom-5 right-5 w-16 h-16 rounded-full bg-teal-500 text-white text-2xl font-bold"
 					onClick={() => {

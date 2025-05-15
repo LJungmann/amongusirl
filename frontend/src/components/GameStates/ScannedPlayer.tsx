@@ -1,7 +1,7 @@
 import { Accessor, Show } from "solid-js";
 import { lastScannedPlayer } from "../Game";
 import { gameStateData, playerData } from "../../App";
-import { isPlayerAlive, isPlayerImposter } from "../../utils";
+import { getPlayerName, isPlayerAlive, isPlayerImposter } from "../../utils";
 
 const ScannedPlayer = (props: { time: Accessor<number> }) => {
 	function attemptKill() {
@@ -32,7 +32,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 							alt=""
 							class="w-fit h-[30vh]"
 						/>
-						<p>Player is dead!</p>
+						<p>{getPlayerName(lastScannedPlayer()?.playerId)} is dead!</p>
 						<button class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32">
 							Report
 						</button>
@@ -45,7 +45,7 @@ const ScannedPlayer = (props: { time: Accessor<number> }) => {
 						alt=""
 						class="w-fit h-[30vh]"
 					/>
-					<p>Player is alive!</p>
+					<p>{getPlayerName(lastScannedPlayer()?.playerId)} is alive!</p>
 					<button
 						class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32"
 						onClick={attemptKill}

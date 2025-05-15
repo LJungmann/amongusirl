@@ -5,7 +5,7 @@ import {
 	setGameState,
 	setPlayerData,
 } from "../../App";
-import { isPlayerImposter } from "../../utils";
+import { isPlayerAlive, isPlayerImposter } from "../../utils";
 import PlayerRow from "../PlayerRow";
 
 const GameOver = () => {
@@ -37,6 +37,7 @@ const GameOver = () => {
 								style={{ "font-family": "VCR_OSD_MONO" }}
 							>
 								Impostor
+								{gameStateData().gameSettings.imposterCount > 1 ? "s" : ""}
 							</span>{" "}
 							won!
 						</p>
@@ -78,11 +79,7 @@ const GameOver = () => {
 										"/" +
 										x.playerId +
 										"_" +
-										(gameStateData().alivePlayers.findIndex(
-											(y) => y.playerId === x.playerId,
-										) === 1
-											? "dead"
-											: "alive") +
+										(isPlayerAlive(x.playerId) ? "alive" : "dead") +
 										".webp"
 									}
 									alt="Crewmate"
@@ -102,20 +99,6 @@ const GameOver = () => {
 					won!
 				</p>
 			</Show>
-			{/* <button
-				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-				onClick={async () => {
-					await fetch(import.meta.env.VITE_WEB_URL + "reset", {
-						method: "POST",
-					});
-					setGameState("lobby");
-					setPlayerData({
-						playerId: -1,
-					});
-				}}
-			>
-				Back to menu
-			</button> */}
 		</div>
 	);
 };

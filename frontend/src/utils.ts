@@ -67,3 +67,13 @@ export function isValidStation(
 ) {
 	return getTasks(playerId).findIndex((x) => x === stationId) !== -1;
 }
+
+export function getPlayerName(playerId: number = playerData().playerId) {
+	const player = gameStateData().nicknames.find(
+		(x) => x[0].playerId === playerId,
+	);
+	if (player) {
+		return player[1];
+	}
+	return "Player " + (parseInt(playerId + "") + 1);
+}

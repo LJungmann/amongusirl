@@ -34,6 +34,7 @@ export class AppService {
     this.gameState.bodyFound = false;
     this.gameState.playersRegisteredForVoting = [];
     this.gameState.currentGameId = '';
+    this.gameState.nicknames = [];
     this.gameState.votes = [];
     this.gameState.scansCompleted = [];
     this.gameState.stations = [];
@@ -308,6 +309,16 @@ export class AppService {
     if (index !== -1) {
       this.gameState.stations[index][2] = data;
     }
+  }
+
+  setNickname(playerId: number, nickname: string): void {
+    const index = this.gameState.nicknames.findIndex(
+      (nickname) => nickname[0].playerId === playerId,
+    );
+    if (index !== -1) {
+      this.gameState.nicknames[index][1] = nickname;
+    }
+    this.gameState.nicknames.push([{ playerId: playerId }, nickname]);
   }
 
   private shuffle(array) {

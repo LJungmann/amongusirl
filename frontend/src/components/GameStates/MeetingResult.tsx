@@ -1,6 +1,6 @@
 import { Match, onMount, Switch } from "solid-js";
 import { gameStateData } from "../../App";
-import { isPlayerImposter } from "../../utils";
+import { getPlayerName, isPlayerImposter } from "../../utils";
 
 const MeetingResult = () => {
 	onMount(() => {
@@ -51,8 +51,9 @@ const MeetingResult = () => {
 								class="h-[30vh] ejected"
 							/>
 							<p class="text-4xl text-center">
-								Player{" "}
-								{parseInt(gameStateData().lastMeetingResult.split("_")[1]) + 1}{" "}
+								{getPlayerName(
+									parseInt(gameStateData().lastMeetingResult.split("_")[1]),
+								)}
 								was{" "}
 								{isPlayerImposter(
 									parseInt(gameStateData().lastMeetingResult.split("_")[1]),
