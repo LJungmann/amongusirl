@@ -35,6 +35,9 @@ const Meeting = () => {
 	});
 
 	const [hasVoted, setHasVoted] = createSignal(false);
+	const [openConfirmation, setOpenConfirmation] = createSignal<
+		number | undefined
+	>(undefined);
 
 	return (
 		<div>
@@ -91,6 +94,15 @@ const Meeting = () => {
 							You are dead and cannot vote!
 						</p>
 					</Show>
+					<Show
+						when={
+							isPlayerAlive() && !hasVoted() && openConfirmation() !== undefined
+						}
+					>
+						<p class="text-red-800 w-full text-center py-2">
+							You need to confirm your vote at the bottom!
+						</p>
+					</Show>
 					<ul class="flex flex-row flex-wrap gap-2 py-4 items-center justify-center rounded bg-gray-200">
 						<For
 							each={gameStateData().playersConnected}
@@ -130,26 +142,7 @@ const Meeting = () => {
 												alert("You are dead! You cannot vote!");
 												return;
 											}
-											setHasVoted(true);
-											const response = await fetch(
-												import.meta.env.VITE_WEB_URL + "voteFor",
-												{
-													method: "POST",
-													//"" + x.playerId,
-													body: JSON.stringify({
-														playerId: x.playerId,
-													}),
-													headers: {
-														"Content-Type": "application/json",
-													},
-												},
-											);
-											if ((await response.text()) === "false") {
-												alert(
-													"Something went wrong with your vote, try again!",
-												);
-												setHasVoted(false);
-											}
+											setOpenConfirmation(x.playerId);
 										}}
 									>
 										Vote for {getPlayerName(x.playerId)}
@@ -187,6 +180,49 @@ const Meeting = () => {
 							</button>
 						</li>
 					</ul>
+					<Show
+						when={
+							isPlayerAlive() && !hasVoted() && openConfirmation() !== undefined
+						}
+					>
+						<div class="flex flex-row gap-2 justify-center">
+							<button
+								class="bg-red-500 px-2 py-4 m-2 rounded-2xl text-white min-w-32"
+								onClick={async () => {
+									setHasVoted(true);
+									const playerId = openConfirmation();
+									setOpenConfirmation(undefined);
+									const response = await fetch(
+										import.meta.env.VITE_WEB_URL + "voteFor",
+										{
+											method: "POST",
+											//"" + x.playerId,
+											body: JSON.stringify({
+												playerId: playerId,
+											}),
+											headers: {
+												"Content-Type": "application/json",
+											},
+										},
+									);
+									if ((await response.text()) === "false") {
+										alert("Something went wrong with your vote, try again!");
+										setHasVoted(false);
+									}
+								}}
+							>
+								Confirm Voting for {getPlayerName(openConfirmation())}
+							</button>
+							<button
+								class="bg-gray-600  px-2 py-4 m-2 rounded-2xl text-white min-w-32"
+								onClick={() => {
+									setOpenConfirmation(undefined);
+								}}
+							>
+								Cancel
+							</button>
+						</div>
+					</Show>
 				</div>
 			</Show>
 		</div>

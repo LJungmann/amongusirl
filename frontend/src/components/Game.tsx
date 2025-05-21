@@ -111,12 +111,17 @@ const Game = () => {
 				fallback={
 					<>
 						{/* main game display */}
+						{/* Progress Bars */}
 						<div class="relative">
 							<span class="absolute top-1/2 left-1/2 text-2xl font-bold -translate-1/2">
 								Tasks Complete
 							</span>
 							<progress
-								max={gameStateData().playersConnected.length * 3}
+								max={
+									gameStateData().playersConnected.filter((x) =>
+										isPlayerImposter(x.playerId),
+									).length * 3
+								}
 								value={gameStateData().gamesCompleted.length}
 								class="w-full h-12 progressbar"
 							/>{" "}
@@ -142,6 +147,7 @@ const Game = () => {
 							</Match>
 							<Match when={playState() === "game"}>
 								<div>
+									{/* Task List */}
 									<div class="bg-gray-200 p-4 rounded-lg">
 										<p class="text-4xl">Tasks:</p>
 										<ul class="text-2xl list-disc ml-8">
@@ -150,6 +156,8 @@ const Game = () => {
 											</For>
 										</ul>
 									</div>
+
+									{/* Info Buttons */}
 									<div class="flex flex-row mt-4 gap-2">
 										<button
 											class="px-4 py-2 text-xl font-bold text-white bg-red-500 rounded-2xl"
@@ -176,6 +184,7 @@ const Game = () => {
 											Role
 										</button>
 									</div>
+									{/* Foldable Infos */}
 									<Switch>
 										<Match when={openInstruction() === "info"}>
 											<p>Instructions</p>
@@ -230,6 +239,7 @@ const Game = () => {
 										</Match>
 									</Switch>
 								</div>
+								{/* Scan Players info */}
 								<p class="mt-8">
 									Scan players' tags to fill the scan progress bar or to kill
 									them.

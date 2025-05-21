@@ -397,7 +397,9 @@ export class AppService {
     //  or imposters are all dead
     if (
       (this.gameState.gamesCompleted.length >=
-        this.gameState.playersConnected.length * 3 &&
+        (this.gameState.playersConnected.length -
+          this.gameState.gameSettings.imposterCount) *
+          3 &&
         this.gameState.scansCompleted.reduce(
           (acc, scan) => acc + scan[1],
           0,
