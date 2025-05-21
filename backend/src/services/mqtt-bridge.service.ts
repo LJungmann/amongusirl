@@ -19,11 +19,6 @@ export class MqttBridgeService implements OnModuleInit {
     this.connectToLocalBroker();
   }
 
-  // TODO: to finish game stations
-  // On game start -> generate list of stations a player has to complete, save in gamestate
-  // if player occupies a station -> check if he has this station in his list. If not, reject. Is yes, set as occupied in game state
-  // If a station sends a task complete, while it should not be occupied, ignore. Else, push to completed stations.
-
   private connectToTTN() {
     const ttnAppId = 'amongusirl@ttn';
     const ttnApiKey =

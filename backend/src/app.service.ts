@@ -6,9 +6,11 @@ import {
   GameState,
   PlayerToStations,
 } from './model/game/GameState';
+import { GamestateGateway } from './gateways/gamestate/gamestate.gateway';
 
 @Injectable()
 export class AppService {
+  constructor(private gamestateGateway: GamestateGateway) {}
   private gameState: GameState = new GameState();
   private meetingTimer: NodeJS.Timeout | null = null;
 
@@ -42,6 +44,10 @@ export class AppService {
     this.gameState.lastMeetingResult = '';
   }
 
+  private gamestateChanged(gameState: GameState) {
+    this.gamestateGateway.sendUpdate(gameState);
+  }
+
   openGame(playerId: number): OpenGameResponse {
     this.resetGameState();
     const response = new OpenGameResponse();
@@ -50,6 +56,7 @@ export class AppService {
     this.gameState.currentGameId = response.gameId;
     this.gameState.playersConnected.push({ playerId: playerId });
     this.gameState.alivePlayers.push({ playerId: playerId });
+    this.gamestateChanged(this.gameState);
     return response;
   }
 
@@ -63,6 +70,7 @@ export class AppService {
     }
     this.gameState.playersConnected.push({ playerId: playerId });
     this.gameState.alivePlayers.push({ playerId: playerId });
+    this.gamestateChanged(this.gameState);
     return playerId;
   }
 
@@ -86,6 +94,7 @@ export class AppService {
       }
       this.gameState.playersNeededStations.push(playerToStations);
     });
+    this.gamestateChanged(this.gameState);
   }
 
   getGameState(): GameState {
@@ -98,12 +107,14 @@ export class AppService {
     );
     this.gameState.alivePlayers.splice(index, 1);
     this.checkIfGameOver();
+    this.gamestateChanged(this.gameState);
   }
 
   emergencyButton(): void {
     this.gameState.emergencyButtonPressed = true;
     this.gameState.killsEnabled = false;
     this.gameState.votes.push([{ playerId: -1 }, 0]);
+    this.gamestateChanged(this.gameState);
   }
 
   bodyFound(playerId: number): void {
@@ -119,6 +130,7 @@ export class AppService {
         this.gameState.bodyFound = true;
       }
     }
+    this.gamestateChanged(this.gameState);
   }
 
   // Voting:
@@ -152,6 +164,7 @@ export class AppService {
           this.finishVoting();
         }, this.gameState.gameSettings.meetingDuration * 1000);
       }
+      this.gamestateChanged(this.gameState);
       return true;
     } else {
       return false;
@@ -177,6 +190,7 @@ export class AppService {
       console.log('all votes casted');
       this.finishVoting();
     }
+    this.gamestateChanged(this.gameState);
     return true;
   }
 
@@ -204,6 +218,7 @@ export class AppService {
         this.checkIfGameOver();
       }
     }
+    this.gamestateChanged(this.gameState);
   }
 
   startStation(stationId: string, playerId: number): void {
@@ -240,6 +255,7 @@ export class AppService {
       return;
     }
     this.gameState.stations.push([stationId, playerId, undefined]);
+    this.gamestateChanged(this.gameState);
   }
 
   completeStation(stationId: string): void {
@@ -295,11 +311,13 @@ export class AppService {
         '😜 You tried to complete a station you are not logged in at! LOL!',
       );
     }
+    this.gamestateChanged(this.gameState);
   }
 
   setSettings(settings: GameSettings) {
     this.gameState.gameSettings = settings;
     console.log('setSettings', this.gameState.gameSettings);
+    this.gamestateChanged(this.gameState);
   }
 
   setStationData(stationId: string, data: any): void {
@@ -309,6 +327,7 @@ export class AppService {
     if (index !== -1) {
       this.gameState.stations[index][2] = data;
     }
+    this.gamestateChanged(this.gameState);
   }
 
   setNickname(playerId: number, nickname: string): void {
@@ -319,6 +338,7 @@ export class AppService {
       this.gameState.nicknames[index][1] = nickname;
     }
     this.gameState.nicknames.push([{ playerId: playerId }, nickname]);
+    this.gamestateChanged(this.gameState);
   }
 
   private shuffle(array) {
@@ -336,6 +356,7 @@ export class AppService {
         array[currentIndex],
       ];
     }
+    this.gamestateChanged(this.gameState);
   }
 
   private finishVoting() {
@@ -386,6 +407,7 @@ export class AppService {
     if (this.meetingTimer) {
       clearTimeout(this.meetingTimer);
     }
+    this.gamestateChanged(this.gameState);
   }
 
   private checkIfGameOver() {
@@ -409,6 +431,7 @@ export class AppService {
     ) {
       this.gameState.gameOver = 'CREWMATES_WIN';
     }
+    this.gamestateChanged(this.gameState);
   }
 
   private imposterAliveCount(): number {

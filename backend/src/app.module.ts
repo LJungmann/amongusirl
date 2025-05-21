@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { WiresController } from './wires/wires.controller';
 import { WiresService } from './wires/wires.service';
 import { MqttBridgeService } from './services/mqtt-bridge.service';
+import { GamestateGateway } from './gateways/gamestate/gamestate.gateway';
 
 @Module({
   imports: [],
   controllers: [AppController, WiresController],
-  providers: [AppService, WiresService, MqttBridgeService],
+  providers: [AppService, WiresService, MqttBridgeService, GamestateGateway],
 })
 export class AppModule {}
