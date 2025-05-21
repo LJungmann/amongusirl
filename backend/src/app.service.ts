@@ -42,6 +42,7 @@ export class AppService {
     this.gameState.stations = [];
     this.gameState.playersNeededStations = [];
     this.gameState.lastMeetingResult = '';
+    this.gamestateChanged(this.gameState);
   }
 
   private gamestateChanged(gameState: GameState) {
@@ -356,7 +357,6 @@ export class AppService {
         array[currentIndex],
       ];
     }
-    this.gamestateChanged(this.gameState);
   }
 
   private finishVoting() {

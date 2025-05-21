@@ -53,7 +53,7 @@ const MeetingResult = () => {
 							<p class="text-4xl text-center">
 								{getPlayerName(
 									parseInt(gameStateData().lastMeetingResult.split("_")[1]),
-								)}
+								)}{" "}
 								was{" "}
 								{isPlayerImposter(
 									parseInt(gameStateData().lastMeetingResult.split("_")[1]),

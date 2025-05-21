@@ -13,7 +13,7 @@ import Lobby from "./components/Lobby";
 import Game from "./components/Game";
 import Debug from "./components/Debug";
 import { getPlayerName } from "./utils";
-import PlayerRow from "./components/PlayerRow";
+import { io } from "socket.io-client";
 
 type State = "lobby" | "game";
 type GameState = {
@@ -85,9 +85,30 @@ export const [playerData, setPlayerData] = createSignal<PlayerData>({
 export const [debug, setDebug] = createSignal(false);
 const App: Component = () => {
 	onMount(() => {
-		setInterval(async () => {
-			const response = await fetch(import.meta.env.VITE_WEB_URL + "gameState");
-			setGameStateData((await response.json()) as GameState);
+		// setInterval(async () => {
+		// 	const response = await fetch(import.meta.env.VITE_WEB_URL + "gameState");
+		// 	setGameStateData((await response.json()) as GameState);
+		// 	const gameId = localStorage.getItem("among.gameId");
+		// 	const playerId = localStorage.getItem("among.playerId");
+		// 	if (playerData().playerId === -99 && gameId && playerId) {
+		// 		if (gameId == gameStateData().currentGameId && playerId) {
+		// 			setPlayerData({
+		// 				playerId: parseInt(playerId),
+		// 			});
+		// 		}
+		// 	}
+		// }, 1000);
+		console.log("Creating socket...");
+		const socket = io(import.meta.env.VITE_WEB_URL); // change address if needed
+
+		console.log("Connecting to server...");
+		socket.on("connect", () => {
+			console.log("Connected to server");
+		});
+
+		socket.on("gameStateChanged", (data) => {
+			console.log("Received update:", data);
+			setGameStateData(data as GameState);
 			const gameId = localStorage.getItem("among.gameId");
 			const playerId = localStorage.getItem("among.playerId");
 			if (playerData().playerId === -99 && gameId && playerId) {
@@ -97,7 +118,7 @@ const App: Component = () => {
 					});
 				}
 			}
-		}, 1000);
+		});
 	});
 
 	createEffect(() => {
@@ -158,7 +179,7 @@ const App: Component = () => {
 					<div class="flex flex-col items-center justify-center h-full bg-gray-100 gap-4">
 						<img src="/Logo.svg" alt="Among Us IRL icon" />
 						<div class="p-8">
-							<p class="text-2xl">Welcome to the Among Us IRL!</p>
+							<p class="text-2xl">Welcome to Among Us IRL!</p>
 							<p>
 								There is currently a game going on, please wait for it to
 								complete

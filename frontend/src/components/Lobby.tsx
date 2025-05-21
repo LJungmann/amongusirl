@@ -160,7 +160,7 @@ const Lobby = () => {
 				<Match when={state() === "lobby"}>
 					<img src="/Logo.svg" alt="Among Us IRL icon" />
 					<h1 class="text-4xl">Among Us IRL</h1>
-					<p class="text-2xl">Welcome to the Among Us IRL!</p>
+					<p class="text-2xl">Welcome to Among Us IRL!</p>
 					<Show
 						when={gameStateData().currentGameId !== ""}
 						fallback={
@@ -223,6 +223,10 @@ const Lobby = () => {
 								alert("Please enter valid numbers");
 								return;
 							}
+							localStorage.setItem(
+								"among.nickname",
+								nicknameInput?.value ?? "Player " + (playerData().playerId + 1),
+							);
 							await fetch(import.meta.env.VITE_WEB_URL + "setNickname", {
 								method: "POST",
 								body: JSON.stringify({

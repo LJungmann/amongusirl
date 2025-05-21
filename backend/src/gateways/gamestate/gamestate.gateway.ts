@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway() // adjust port/config as needed
+@WebSocketGateway({ cors: true }) // adjust port/config as needed
 export class GamestateGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {

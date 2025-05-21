@@ -6,33 +6,38 @@ import {
 	isPlayerRegisteredForVoting,
 } from "../../utils";
 
-function getMeetingEndTime() {
-	const seconds =
-		(gameStateData().meetingEndTime - new Date().getTime()) / 1000;
-	if (seconds < 0) {
-		return "";
-	} else if (seconds > 60) {
-		return Math.floor(seconds / 60) + "m " + Math.floor(seconds % 60) + "s";
-	}
-	return Math.floor(seconds) + "s";
-}
-
 export const [showMeetingResult, setShowMeetingResult] = createSignal(false);
 
 const Meeting = () => {
+	const [time, setTime] = createSignal(new Date().getTime());
+	let timeInterval: number | undefined;
 	onMount(() => {
 		if (navigator.vibrate) {
 			navigator.vibrate(500);
 		} else {
 			alert("Vibration not supported on this device.");
 		}
+		timeInterval = setInterval(() => {
+			setTime(new Date().getTime());
+		}, 1000);
 	});
 	onCleanup(() => {
 		setShowMeetingResult(true);
 		setTimeout(() => {
 			setShowMeetingResult(false);
 		}, 4000);
+		clearInterval(timeInterval);
 	});
+
+	function getMeetingEndTime() {
+		const seconds = (gameStateData().meetingEndTime - time()) / 1000;
+		if (seconds < 0) {
+			return "";
+		} else if (seconds > 60) {
+			return Math.floor(seconds / 60) + "m " + Math.floor(seconds % 60) + "s";
+		}
+		return Math.floor(seconds) + "s";
+	}
 
 	const [hasVoted, setHasVoted] = createSignal(false);
 	const [openConfirmation, setOpenConfirmation] = createSignal<
@@ -79,9 +84,7 @@ const Meeting = () => {
 									gameStateData().meetingStartTime) /
 								1000
 							}
-							value={
-								(gameStateData().meetingEndTime - new Date().getTime()) / 1000
-							}
+							value={(gameStateData().meetingEndTime - time()) / 1000}
 							// meeting endet um 10 Uhr
 							// es ist gerade 9:55 Uhr
 							// meeting dauert noch 5 min
