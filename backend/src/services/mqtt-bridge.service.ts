@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as mqtt from 'mqtt';
 import { AppService } from 'src/app.service';
 import { Wiring } from 'src/model/wiring/Wiring';
@@ -12,6 +13,7 @@ export class MqttBridgeService implements OnModuleInit {
   constructor(
     private appService: AppService,
     private wiresService: WiresService,
+    private configService: ConfigService,
   ) {}
 
   onModuleInit() {
@@ -21,8 +23,7 @@ export class MqttBridgeService implements OnModuleInit {
 
   private connectToTTN() {
     const ttnAppId = 'amongusirl@ttn';
-    const ttnApiKey =
-      'NNSXS.YVGFLT3KOIQLHYSWE5QFZGYUM2M6LXOOUI4W4ZI.TFYPFYS7ZYAIU7FFYEJAJI2V3PCL5CW5VO5PXWSEV2CR2BZVTTWQ';
+    const ttnApiKey = this.configService.get('API_KEY');
 
     this.ttnClient = mqtt.connect('mqtts://eu1.cloud.thethings.network:8883', {
       username: ttnAppId,
