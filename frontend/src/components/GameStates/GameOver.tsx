@@ -21,7 +21,7 @@ const GameOver = () => {
 			setPlayerData({
 				playerId: -1,
 			});
-		}, 5000);
+		}, 15000);
 	});
 	return (
 		<div class="h-full flex flex-col items-center justify-center gap-4 mt-[10vh]">

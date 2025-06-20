@@ -47,6 +47,7 @@ export default defineConfig({
 		allowedHosts: [
 			"stationery-background-mother-virus.trycloudflare.com",
 			"among-us.mcdle.net",
+			"among-us-irl.mcdle.net",
 		],
 	},
 	build: {

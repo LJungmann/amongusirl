@@ -118,8 +118,8 @@ const Game = () => {
 							</span>
 							<progress
 								max={
-									gameStateData().playersConnected.filter((x) =>
-										isPlayerImposter(x.playerId),
+									gameStateData().playersConnected.filter(
+										(x) => !isPlayerImposter(x.playerId),
 									).length * 3
 								}
 								value={gameStateData().gamesCompleted.length}

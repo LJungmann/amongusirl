@@ -15,8 +15,8 @@ export class AppService {
   private meetingTimer: NodeJS.Timeout | null = null;
 
   public allStationIds: string[] = [
-    'station_wires',
-    'station_simon',
+    // 'station_wires',
+    // 'station_simon',
     'station_levers',
     'station_lightsout',
     'station_safecrack',
@@ -299,7 +299,7 @@ export class AppService {
         },
       );
       this.gameState.playersNeededStations[playerIndex].stationIds.splice(
-        this.gameState.playersNeededStations[index].stationIds.indexOf(
+        this.gameState.playersNeededStations[playerIndex].stationIds.indexOf(
           mappedStationId,
         ),
         1,

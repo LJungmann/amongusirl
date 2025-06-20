@@ -25,6 +25,7 @@ const Lobby = () => {
 						playerId: 0,
 					}),
 				});
+				// alert("Starting game: " + import.meta.env.VITE_WEB_URL + "open");
 				const json = (await data.json()) as {
 					playerId: number;
 					gameId: string;
