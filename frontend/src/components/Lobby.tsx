@@ -1,5 +1,13 @@
 import { createSignal, Match, onMount, Show, Switch } from "solid-js";
-import { gameStateData, playerData, setGameState, setPlayerData } from "../App";
+import {
+	disconnectSocket,
+	gameStateData,
+	initializeSocket,
+	playerData,
+	setGameState,
+	setGameStateData,
+	setPlayerData,
+} from "../App";
 
 const Lobby = () => {
 	type State =
@@ -15,6 +23,16 @@ const Lobby = () => {
 
 	async function handleStartGame() {
 		if ("NDEFReader" in window) {
+			// make sure the gameStateData is current by fetching it from the server
+			const data = await fetch(import.meta.env.VITE_WEB_URL + "gameState");
+			const gameState = await data.json();
+			if (gameState.currentGameId !== gameStateData().currentGameId) {
+				setGameStateData(gameState);
+				disconnectSocket();
+				// reinitialize the socket connection
+				initializeSocket();
+			}
+
 			if (gameStateData().currentGameId.length < 8) {
 				const data = await fetch(import.meta.env.VITE_WEB_URL + "open", {
 					method: "POST",

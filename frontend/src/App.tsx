@@ -13,7 +13,7 @@ import Lobby from "./components/Lobby";
 import Game from "./components/Game";
 import Debug from "./components/Debug";
 import { getPlayerName } from "./utils";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 type State = "lobby" | "game";
 type GameState = {
@@ -83,42 +83,47 @@ export const [playerData, setPlayerData] = createSignal<PlayerData>({
 	playerId: -99,
 });
 export const [debug, setDebug] = createSignal(false);
+let socket: Socket | undefined = undefined;
+
+export function initializeSocket() {
+	if (socket) {
+		console.log("Socket already initialized, skipping...");
+		return;
+	}
+	console.log("Creating socket...");
+	socket = io(import.meta.env.VITE_WEB_URL); // change address if needed
+
+	console.log("Connecting to server...");
+	socket.on("connect", () => {
+		console.log("Connected to server");
+	});
+
+	socket.on("gameStateChanged", (data) => {
+		console.log("Received update:", data);
+		setGameStateData(data as GameState);
+		const gameId = localStorage.getItem("among.gameId");
+		const playerId = localStorage.getItem("among.playerId");
+		if (playerData().playerId === -99 && gameId && playerId) {
+			if (gameId == gameStateData().currentGameId && playerId) {
+				setPlayerData({
+					playerId: parseInt(playerId),
+				});
+			}
+		}
+	});
+}
+
+export function disconnectSocket() {
+	if (socket) {
+		console.log("Disconnecting socket...");
+		socket.disconnect();
+		socket = undefined;
+	}
+}
+
 const App: Component = () => {
 	onMount(() => {
-		// setInterval(async () => {
-		// 	const response = await fetch(import.meta.env.VITE_WEB_URL + "gameState");
-		// 	setGameStateData((await response.json()) as GameState);
-		// 	const gameId = localStorage.getItem("among.gameId");
-		// 	const playerId = localStorage.getItem("among.playerId");
-		// 	if (playerData().playerId === -99 && gameId && playerId) {
-		// 		if (gameId == gameStateData().currentGameId && playerId) {
-		// 			setPlayerData({
-		// 				playerId: parseInt(playerId),
-		// 			});
-		// 		}
-		// 	}
-		// }, 1000);
-		console.log("Creating socket...");
-		const socket = io(import.meta.env.VITE_WEB_URL); // change address if needed
-
-		console.log("Connecting to server...");
-		socket.on("connect", () => {
-			console.log("Connected to server");
-		});
-
-		socket.on("gameStateChanged", (data) => {
-			console.log("Received update:", data);
-			setGameStateData(data as GameState);
-			const gameId = localStorage.getItem("among.gameId");
-			const playerId = localStorage.getItem("among.playerId");
-			if (playerData().playerId === -99 && gameId && playerId) {
-				if (gameId == gameStateData().currentGameId && playerId) {
-					setPlayerData({
-						playerId: parseInt(playerId),
-					});
-				}
-			}
-		});
+		initializeSocket();
 	});
 
 	createEffect(() => {
