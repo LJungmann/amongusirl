@@ -16,7 +16,7 @@ export class AppService {
 
   public allStationIds: string[] = [
     // 'station_wires',
-    // 'station_simon',
+    'station_simon',
     'station_levers',
     'station_lightsout',
     'station_safecrack',
