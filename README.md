@@ -2,6 +2,16 @@
 
 The popular game _Among Us_ made in real life as part of a University project. Not endorsed or associated with the original game or the developers in any way.
 
+## Credits
+
+| Name                                      | Tasks                           |
+| ----------------------------------------- | ------------------------------- |
+| [ElitoGame](https://github.com/ElitoGame) | Frontend, Backend/Hardware Help |
+| [LJungmann](https://github.com/LJungmann) | Backend, Hardware, Lora         |
+| [Lokinaira](https://github.com/Lokinaira) | Hardware, UI                    |
+| Vroni                                     | Hardware, Game Design           |
+| lordblasokke                              | Hardware, Game Design           |
+
 ![Gameplay Example](frontend/public/20250702_174525.jpg)
 
 ## Gameplay Instructions

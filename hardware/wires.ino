@@ -39,10 +39,10 @@ const uint32_t uplinkIntervalSeconds = 1UL * 30UL;    // minutes x seconds
 #define RADIOLIB_LORAWAN_DEV_EUI   0x70B3D57ED0070437
 #endif
 #ifndef RADIOLIB_LORAWAN_APP_KEY   // Replace with your App Key 
-#define RADIOLIB_LORAWAN_APP_KEY   0x66, 0xB6, 0x38, 0xFB, 0x0D, 0x4A, 0xEA, 0x97, 0x8C, 0x05, 0x57, 0x2D, 0x7C, 0x4F, 0xCD, 0xC1
+#define RADIOLIB_LORAWAN_APP_KEY   // HERE
 #endif
 #ifndef RADIOLIB_LORAWAN_NWK_KEY   // Put your Nwk Key here
-#define RADIOLIB_LORAWAN_NWK_KEY   0x83, 0x5A, 0xF8, 0xDA, 0x6A, 0xA3, 0x72, 0xDF, 0xDB, 0x28, 0x49, 0xD7, 0x1F, 0x8D, 0x6B, 0xAD
+#define RADIOLIB_LORAWAN_NWK_KEY   // HERE
 #endif
 
 // for the curious, the #ifndef blocks allow for automated testing &/or you can
