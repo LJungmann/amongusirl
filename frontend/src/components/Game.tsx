@@ -120,26 +120,27 @@ const Game = () => {
 								max={
 									gameStateData().playersConnected.filter(
 										(x) => !isPlayerImposter(x.playerId),
-									).length * 3
+									).length * gameStateData().gameSettings.tasksPerPlayer
 								}
 								value={gameStateData().gamesCompleted.length}
 								class="w-full h-12 progressbar"
 							/>{" "}
-							{/* {gameStateData().gamesCompleted.length}/{gameStateData().playersConnected.length * 3} */}
 						</div>
 						<div class="relative">
 							<span class="absolute top-1/2 left-1/2 text-2xl font-bold -translate-1/2">
 								Players Scanned
 							</span>
 							<progress
-								max={gameStateData().playersConnected.length ** 2}
+								max={
+									gameStateData().playersConnected.length *
+									gameStateData().gameSettings.scansPerPlayer
+								}
 								value={gameStateData().scansCompleted.reduce(
 									(acc, scan) => acc + scan[1],
 									0,
 								)}
 								class="w-full h-12 progressbar"
 							/>{" "}
-							{/* {gameStateData().gamesCompleted.length}/{gameStateData().playersConnected.length * 3} */}
 						</div>
 						<Switch>
 							<Match when={playState() === "emergency"}>
@@ -333,7 +334,10 @@ export async function handleReading(event: Event) {
 						} else {
 							if ((lastSuccessfulScan() ?? 0) < new Date().getTime()) {
 								// 1 minute
-								setLastSuccessfulScan(new Date().getTime() + 60000);
+								setLastSuccessfulScan(
+									new Date().getTime() +
+										gameStateData().gameSettings.scanCooldownTime * 1000,
+								);
 								await fetch(import.meta.env.VITE_WEB_URL + "scanPlayer", {
 									method: "POST",
 									body: JSON.stringify({
@@ -349,7 +353,9 @@ export async function handleReading(event: Event) {
 							// alert("Player " + playerId + " is alive!");
 							setLastScannedPlayer({
 								playerId: playerId,
-								timeStamp: new Date().getTime() + 5000,
+								timeStamp:
+									new Date().getTime() +
+									gameStateData().gameSettings.killWindowTime * 1000,
 							});
 						}
 					}

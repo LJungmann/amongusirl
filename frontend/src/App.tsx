@@ -40,6 +40,10 @@ type GameState = {
 	gameSettings: {
 		imposterCount: number;
 		meetingDuration: number; // in seconds
+		scansPerPlayer: number;
+		tasksPerPlayer: number;
+		killWindowTime: number; // in seconds
+		scanCooldownTime: number; // in seconds
 	};
 };
 
@@ -77,6 +81,10 @@ export const [gameStateData, setGameStateData] = createSignal<GameState>({
 	gameSettings: {
 		imposterCount: 1,
 		meetingDuration: 60,
+		scansPerPlayer: 3,
+		tasksPerPlayer: 3,
+		killWindowTime: 5, // in seconds
+		scanCooldownTime: 60, // in seconds
 	},
 });
 export const [playerData, setPlayerData] = createSignal<PlayerData>({

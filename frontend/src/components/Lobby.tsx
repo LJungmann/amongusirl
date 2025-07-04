@@ -161,16 +161,28 @@ const Lobby = () => {
 	let initialSettings = {
 		imposterCount: 1,
 		meetingDuration: 60,
+		scansPerPlayer: 3,
+		tasksPerPlayer: 3,
+		killWindowTime: 5,
+		scanCooldownTime: 60,
 	};
 	onMount(() => {
 		initialSettings = {
 			imposterCount: gameStateData().gameSettings.imposterCount ?? 1,
 			meetingDuration: gameStateData().gameSettings.meetingDuration ?? 60,
+			scansPerPlayer: gameStateData().gameSettings.scansPerPlayer ?? 3,
+			tasksPerPlayer: gameStateData().gameSettings.tasksPerPlayer ?? 3,
+			killWindowTime: gameStateData().gameSettings.killWindowTime ?? 5,
+			scanCooldownTime: gameStateData().gameSettings.scanCooldownTime ?? 60,
 		};
 	});
 
 	let imposterCountInput: HTMLInputElement | undefined;
 	let meetingTimeInput: HTMLInputElement | undefined;
+	let scansPerPlayerInput: HTMLInputElement | undefined;
+	let tasksPerPlayerInput: HTMLInputElement | undefined;
+	let scanCooldownInput: HTMLInputElement | undefined;
+	let killWindowInput: HTMLInputElement | undefined;
 	let nicknameInput: HTMLInputElement | undefined;
 
 	return (
@@ -237,7 +249,7 @@ const Lobby = () => {
 						onSubmit={async (e) => {
 							e.preventDefault();
 							const imposterCount = parseInt(imposterCountInput?.value ?? "1");
-							const meetingTime = parseInt(meetingTimeInput?.value ?? "30");
+							const meetingTime = parseInt(meetingTimeInput?.value ?? "60");
 							if (isNaN(imposterCount) || isNaN(meetingTime)) {
 								alert("Please enter valid numbers");
 								return;
@@ -284,62 +296,131 @@ const Lobby = () => {
 					</form>
 				</Match>
 				<Match when={state() === "configure"}>
-					<img src="/Logo.svg" alt="Among Us IRL icon" />
-					<h1 class="text-4xl">Settings</h1>
-					<form
-						onSubmit={async (e) => {
-							e.preventDefault();
-							const imposterCount = parseInt(imposterCountInput?.value ?? "1");
-							const meetingTime = parseInt(meetingTimeInput?.value ?? "30");
-							if (isNaN(imposterCount) || isNaN(meetingTime)) {
-								alert("Please enter valid numbers");
-								return;
-							}
-							await fetch(import.meta.env.VITE_WEB_URL + "setSettings", {
-								method: "POST",
-								body: JSON.stringify({
-									imposterCount: imposterCount,
-									meetingDuration: meetingTime,
-								}),
-								headers: {
-									"Content-Type": "application/json",
-								},
-							});
-							setState("nickname");
-						}}
-						class="flex flex-col gap-4 items-center justify-center w-full h-full"
-					>
-						{/* Imposter count 1-2 */}
-						<label class="text-2xl">
-							Number of imposters:
-							<input
-								type="number"
-								min="1"
-								max="2"
-								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
-								ref={imposterCountInput}
-								value={initialSettings.imposterCount}
-							/>
-						</label>
-						{/* Meeting time seconds 30-240 */}
-						<label class="text-2xl">
-							Meeting time (seconds):
-							<input
-								type="number"
-								min="30"
-								max="240"
-								class="ml-4 border-2 border-gray-300 rounded-lg p-2"
-								ref={meetingTimeInput}
-								value={initialSettings.meetingDuration}
-							/>
-						</label>
-						<input
-							type="submit"
-							class="text-2xl bg-red-500 rounded-2xl px-4 py-2"
+					<div class="flex flex-col items-center justify-center h-full bg-gray-100 gap-4 overflow-y-auto">
+						<img src="/Logo.svg" alt="Among Us IRL icon" />
+						<h1 class="text-4xl">Settings</h1>
+						<form
+							onSubmit={async (e) => {
+								e.preventDefault();
+								const imposterCount = parseInt(
+									imposterCountInput?.value ?? "1",
+								);
+								const meetingTime = parseInt(meetingTimeInput?.value ?? "60");
+								const scansPerPlayer = parseInt(
+									scansPerPlayerInput?.value ?? "3",
+								);
+								const tasksPerPlayer = parseInt(
+									tasksPerPlayerInput?.value ?? "3",
+								);
+								const scanCooldownTime = parseInt(
+									scanCooldownInput?.value ?? "60",
+								);
+								const killWindowTime = parseInt(killWindowInput?.value ?? "5");
+								if (
+									isNaN(imposterCount) ||
+									isNaN(meetingTime) ||
+									isNaN(scansPerPlayer) ||
+									isNaN(tasksPerPlayer) ||
+									isNaN(scanCooldownTime) ||
+									isNaN(killWindowTime)
+								) {
+									alert("Please enter valid numbers");
+									return;
+								}
+								await fetch(import.meta.env.VITE_WEB_URL + "setSettings", {
+									method: "POST",
+									body: JSON.stringify({
+										imposterCount: imposterCount,
+										meetingDuration: meetingTime,
+										scansPerPlayer: scansPerPlayer,
+										tasksPerPlayer: tasksPerPlayer,
+										scanCooldownTime: scanCooldownTime,
+										killWindowTime: killWindowTime,
+									}),
+									headers: {
+										"Content-Type": "application/json",
+									},
+								});
+								setState("nickname");
+							}}
+							class="flex flex-col gap-4 items-center justify-center w-full h-full"
 						>
-							Confirm Settings
-						</input>
-					</form>
+							{/* Imposter count 1-2 */}
+							<label class="text-2xl">
+								Number of imposters:
+								<input
+									type="number"
+									min="1"
+									max="2"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={imposterCountInput}
+									value={initialSettings.imposterCount}
+								/>
+							</label>
+							{/* Meeting time seconds 30-240 */}
+							<label class="text-2xl">
+								Meeting time (seconds):
+								<input
+									type="number"
+									min="30"
+									max="240"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={meetingTimeInput}
+									value={initialSettings.meetingDuration}
+								/>
+							</label>
+							<label class="text-2xl">
+								Scans per player:
+								<input
+									type="number"
+									min="1"
+									max="10"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={scansPerPlayerInput}
+									value={initialSettings.scansPerPlayer}
+								/>
+							</label>
+							<label class="text-2xl">
+								Tasks per player:
+								<input
+									type="number"
+									min="1"
+									max="4"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={tasksPerPlayerInput}
+									value={initialSettings.tasksPerPlayer}
+								/>
+							</label>
+							<label class="text-2xl">
+								Scan cooldown time (seconds):
+								<input
+									type="number"
+									min="10"
+									max="120"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={scanCooldownInput}
+									value={initialSettings.scanCooldownTime}
+								/>
+							</label>
+							<label class="text-2xl">
+								Kill window time (seconds):
+								<input
+									type="number"
+									min="1"
+									max="30"
+									class="ml-4 border-2 border-gray-300 rounded-lg p-2"
+									ref={killWindowInput}
+									value={initialSettings.killWindowTime}
+								/>
+							</label>
+							<input
+								type="submit"
+								class="text-2xl bg-red-500 rounded-2xl px-4 py-2 mb-64"
+							>
+								Confirm Settings
+							</input>
+						</form>
+					</div>
 				</Match>
 				<Match when={state() === "start-game"}>
 					<p class="text-8xl">

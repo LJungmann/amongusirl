@@ -22,16 +22,28 @@ export class GameState {
   gameSettings: GameSettings = {
     imposterCount: 1,
     meetingDuration: 60,
+    scansPerPlayer: 3,
+    tasksPerPlayer: 3,
+    killWindowTime: 5,
+    scanCooldownTime: 60,
   };
 }
 
 export class GameSettings {
   imposterCount: number;
   meetingDuration: number; // in seconds
+  scansPerPlayer: number;
+  tasksPerPlayer: number;
+  killWindowTime: number; // in seconds
+  scanCooldownTime: number; // in seconds
 
   constructor() {
     this.imposterCount = 1;
     this.meetingDuration = 60;
+    this.scansPerPlayer = 3;
+    this.tasksPerPlayer = 3;
+    this.killWindowTime = 5;
+    this.scanCooldownTime = 60;
   }
 }
 

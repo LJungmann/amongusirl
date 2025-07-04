@@ -2,6 +2,8 @@
 
 The popular game _Among Us_ made in real life as part of a University project. Not endorsed or associated with the original game or the developers in any way.
 
+![Gameplay Example](frontend/public/20250702_174525.jpg)
+
 ## Credits
 
 | Name                                      | Tasks                           |
@@ -11,8 +13,6 @@ The popular game _Among Us_ made in real life as part of a University project. N
 | [Lokinaira](https://github.com/Lokinaira) | Hardware, UI                    |
 | Vroni                                     | Hardware, Game Design           |
 | lordblasokke                              | Hardware, Game Design           |
-
-![Gameplay Example](frontend/public/20250702_174525.jpg)
 
 ## Gameplay Instructions
 

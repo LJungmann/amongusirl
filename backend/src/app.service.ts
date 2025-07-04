@@ -15,9 +15,9 @@ export class AppService {
   private meetingTimer: NodeJS.Timeout | null = null;
 
   public allStationIds: string[] = [
-    // 'station_wires',
+    'station_wires',
     'station_simon',
-    'station_levers',
+    // 'station_levers',
     'station_lightsout',
     'station_safecrack',
   ];
@@ -90,7 +90,7 @@ export class AppService {
 
       this.shuffle(this.allStationIds);
       // take 3 random stations for each player
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < this.gameState.gameSettings.tasksPerPlayer; i++) {
         playerToStations.stationIds.push(this.allStationIds[i]);
       }
       this.gameState.playersNeededStations.push(playerToStations);
@@ -421,12 +421,13 @@ export class AppService {
       (this.gameState.gamesCompleted.length >=
         (this.gameState.playersConnected.length -
           this.gameState.gameSettings.imposterCount) *
-          3 &&
+          this.gameState.gameSettings.tasksPerPlayer &&
         this.gameState.scansCompleted.reduce(
           (acc, scan) => acc + scan[1],
           0,
         ) ===
-          this.gameState.playersConnected.length ** 2) ||
+          this.gameState.playersConnected.length *
+            this.gameState.gameSettings.scansPerPlayer) ||
       this.imposterAliveCount() === 0
     ) {
       this.gameState.gameOver = 'CREWMATES_WIN';
